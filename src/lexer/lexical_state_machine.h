@@ -321,9 +321,14 @@ add_keyword_recognition(STATE_MACHINE* sm,
         add_transition(sm->initial_state, id_alpha_states + i);
         for(j=0; j<sm->initial_state->num_transitions; j++)
         {
-            // Adds identifier recognition to the first states, recursion will make
-            // this bubble up to their transitioned states.
-            add_identifier_states(sm->initial_state->allowed_transitions[i], id_alphanumeric_states, num_alphanum);
+            // If the character in the state is an alpha, it should be able to segue
+            // into the identifier states.
+            if(strchr(alpha, sm->initial_state->allowed_transitions[i]->state))
+            {
+                // Adds identifier recognition to the first states, recursion will make
+                // this bubble up to their transitioned states.
+                add_identifier_states(sm->initial_state->allowed_transitions[i], id_alphanumeric_states, num_alphanum);
+            }
         }
     }
 }
@@ -373,7 +378,7 @@ make_nontoken_skipper(void)
     STATE initial_state_val = { 0, NULL, 0, 0, T_ID };
     STATE start_comment_brace_val = { '{', NULL, 0, 0, T_INVALID };
     STATE end_comment_brace_val = { '}', NULL, 0, 0, T_ID };
-    STATE maybe_start_comment_bracket_val = {'(', NULL, 0, 0, T_INVALID};
+    STATE maybe_start_comment_bracket_val = {'(', NULL, 0, 0, T_REWIND_ONE};
     STATE start_comment_bracket_val = {'*', NULL, 0, 0, T_INVALID};
     STATE maybe_end_comment_bracket_val = {'*', NULL, 0, 0, T_INVALID};
     STATE end_comment_bracket_val = {')', NULL, 0, 0, T_ID};

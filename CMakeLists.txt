@@ -2,8 +2,8 @@ cmake_minimum_required (VERSION 2.8)
 
 project (gp-- C)
 set (src src)
-set(CMAKE_C_FLAGS "-std=c99")
-
+set (CMAKE_C_FLAGS "-std=c99")
+set (CMAKE_BUILD_TYPE Debug)
 include_directories(${src})
 #                    ${src}/state_machine,
 #                    ${src}/lexical)

@@ -28,6 +28,7 @@ TOKEN
 skip_nontokens_file(FILE* file,
                     STATE_MACHINE* sm)
 {   
+    long int penultimate_position = 0;
     long int last_position = ftell(file);
     // Do transitions until execute_transition returns an error (no valid transition)
     while(1) 
@@ -54,7 +55,7 @@ skip_nontokens_file(FILE* file,
             fseek(file, last_position, SEEK_SET);
             break;
         }
-        
+        penultimate_position = last_position; 
         last_position = ftell(file);
     }
     // Set sm back to its initial state so it can skip more whitespace later.
@@ -62,6 +63,10 @@ skip_nontokens_file(FILE* file,
     if(ret == T_INVALID)
     {
         fprintf(stderr, "Syntax error on file position %d.\n", last_position);
+    }
+    if(ret == T_REWIND_ONE)
+    {
+        fseek(file, penultimate_position, SEEK_SET);
     }
     reset_machine(sm);
     TOKEN t = {ret, NULL};

@@ -55,6 +55,7 @@ Definition of tokens returned by the lexical analysis compiler pass.
 #define T_LEQ                  45
 #define T_GT                   46
 #define T_GEQ                  47
+#define T_REWIND_ONE          254
 #define T_INVALID             255
 
 typedef struct PAIR
