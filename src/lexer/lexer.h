@@ -30,7 +30,7 @@ skip_nontokens_file(FILE* file,
 {   
     long int last_position = ftell(file);
     // Do transitions until execute_transition returns an error (no valid transition)
-    while(true) 
+    while(1) 
     {
         int c = fgetc(file);
         if(c == EOF)
@@ -92,7 +92,7 @@ next_token_file(FILE* file,
     long int last_position = ftell(file);
     // Do transitions until execute_transition returns an error (no valid transition)
     // This assumes that your file ends on a newline.
-    while(true) 
+    while(1) 
     {
         if(execute_transition(sm, c))
         {

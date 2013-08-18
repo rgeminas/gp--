@@ -1,7 +1,8 @@
 cmake_minimum_required (VERSION 2.8)
 
-project (gp-- CXX)
+project (gp-- C)
 set (src src)
+set(CMAKE_C_FLAGS "-std=c99")
 
 include_directories(${src})
 #                    ${src}/state_machine,
@@ -20,9 +21,10 @@ source_group (headers\\lexer FILES
              ${src}/lexer/lexical_state_machine.h
              ${src}/lexer/token.h 
              ${src}/lexer/lexer.h)
+
 source_group (headers\\parser FILES 
              ${src}/parser/parser.h)
-source_group (sources FILES ${src}/main.cc)
+source_group (sources FILES ${src}/main.c)
 
-add_executable (gp-- ${src}/main.cc ${HEADERS})
-set_property(TARGET gp-- PROPERTY LINKER_LANGUAGE CXX) 
+add_executable (gp-- ${src}/main.c ${HEADERS})
+set_property(TARGET gp-- PROPERTY LINKER_LANGUAGE C) 

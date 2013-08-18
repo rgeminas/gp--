@@ -416,9 +416,9 @@ make_nontoken_skipper(void)
         add_transition(states_inside_brace_comments + c, end_comment_brace);
         c++;
     }
-    for(char i=0; i<0x7e-0x20+4; i++)
+    for(char i=0; i<0x7e - 0x20 + 4; i++)
     {
-        for(char j=0; j<0x7e-0x20+4; j++)
+        for(char j=0; j<0x7e - 0x20 + 4; j++)
         {
             add_transition(states_inside_brace_comments + i, states_inside_brace_comments + j);
         }    
@@ -448,9 +448,9 @@ make_nontoken_skipper(void)
         add_transition(states_inside_bracket_comments + c, maybe_end_comment_bracket);
         c++;
     }
-    for(char i=0; i<0x7e-0x20+4; i++)
+    for(char i=0; i<0x7e - 0x20 + 4; i++)
     {
-        for(char j=0; j<0x7e-0x20+4; j++)
+        for(char j=0; j<0x7e - 0x20 + 4; j++)
         {
             add_transition(states_inside_bracket_comments + i, states_inside_bracket_comments + j);
         }    

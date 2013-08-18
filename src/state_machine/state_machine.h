@@ -1,4 +1,4 @@
-#include "token.h"
+#include "lexer/token.h"
 #include <stdlib.h>
 
 #ifndef __STATE_MACHINE_H
@@ -7,7 +7,7 @@
 typedef struct STATE
 {
     const char state;
-    STATE** allowed_transitions; // Do not alter this directly. always use add_transition
+    struct STATE** allowed_transitions; // Do not alter this directly. always use add_transition
     size_t num_transitions; // Same as before.
     size_t _allocated_mem; // Do not use outside of add_transition. You shouldn't ever need to access it.
     const TOKEN_TYPE return_token;

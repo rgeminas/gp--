@@ -17,7 +17,7 @@ main(size_t argc, char** argv)
     else
         f = fopen(argv[1], "r");
     
-    while(true)
+    while(1)
     {
         TOKEN p = next_token_file(f, sm, wsssm);
         printf("%s: %d\n", (char*) p.token_value, p.type);
