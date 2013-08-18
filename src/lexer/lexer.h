@@ -2,11 +2,11 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "token.h"
-#include "lexical_state_machine.h"
+#include "lexer/token.h"
+#include "lexer/lexical_state_machine.h"
 
-#ifndef __LEXICAL_H
-#define __LEXICAL_H
+#ifndef __LEXER_H
+#define __LEXER_H
 
 TOKEN_TYPE
 next_token(char* string, STATE_MACHINE* sm)
@@ -126,4 +126,4 @@ next_token_file(FILE* file,
     return t;
 }
 
-#endif // __LEXICAL_H
+#endif // __LEXER_H

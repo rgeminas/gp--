@@ -2,8 +2,8 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "state_machine.h"
-#include "token.h"
+#include "state_machine/state_machine.h"
+#include "lexer/token.h"
 
 #ifndef __LEXICAL_STATE_MACHINE_H
 #define __LEXICAL_STATE_MACHINE_H

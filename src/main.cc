@@ -1,5 +1,5 @@
-#include "lexer.h"
-#include "parser.h"
+#include "lexer/lexer.h"
+#include "parser/parser.h"
 
 int 
 main(size_t argc, char** argv)
