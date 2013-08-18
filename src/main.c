@@ -5,7 +5,7 @@ int
 main(size_t argc, char** argv)
 {
     // Make whitespace/comment skipper and tokenizer.
-    STATE_MACHINE* sm = make_full_tokenizer(tokens, 22, keywords, 23);
+    STATE_MACHINE* sm = make_full_tokenizer(tokens, 22, keywords, 25);
     STATE_MACHINE* wsssm = make_nontoken_skipper();
 
     FILE* f;

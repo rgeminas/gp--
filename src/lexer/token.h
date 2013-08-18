@@ -55,6 +55,8 @@ Definition of tokens returned by the lexical analysis compiler pass.
 #define T_LEQ                  45
 #define T_GT                   46
 #define T_GEQ                  47
+#define T_FOR                  48
+#define T_TO                   49
 #define T_REWIND_ONE          254
 #define T_INVALID             255
 
@@ -112,7 +114,9 @@ PAIR keywords[] = {
     {"until", T_UNTIL },
     {"if", T_IF},
     {"then", T_THEN},
-    {"else", T_ELSE}
+    {"else", T_ELSE},
+    {"for", T_FOR},
+    {"to", T_TO}
 };
 
 #endif // __TOKEN_H
