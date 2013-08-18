@@ -1,6 +1,8 @@
-#include "lexical.h"
+#include "lexer.h"
+#include "parser.h"
 
-int main(size_t argc, char** argv)
+int 
+main(size_t argc, char** argv)
 {
     // Make whitespace/comment skipper and tokenizer.
     STATE_MACHINE* sm = make_full_tokenizer(tokens, 22, keywords, 23);
@@ -10,7 +12,7 @@ int main(size_t argc, char** argv)
     if(argc == 1)
     {
         f = fopen("main.p", "r");
-        if(f == NULL) return;
+        if(f == NULL) return 0;
     }
     else
         f = fopen(argv[1], "r");
