@@ -11,8 +11,7 @@ main(size_t argc, char** argv)
     FILE* f;
     if(argc == 1)
     {
-        f = fopen("main.p", "r");
-        if(f == NULL) return 0;
+        fprintf(stderr, "Usage: gp-- source_file.p");
     }
     else
         f = fopen(argv[1], "r");
