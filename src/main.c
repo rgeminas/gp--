@@ -1,5 +1,6 @@
 #include "lexer/lexer.h"
 #include "parser/parser.h"
+#include "portability/portability.h"
 
 int
 main(int argc, char** argv)
@@ -75,6 +76,7 @@ main(int argc, char** argv)
         }
         else // 2ndary token unneeded
         {
+            free(p.token_value);
             printf("%s: %d\n", (char*) p.token_value, p.type);
         }
     }

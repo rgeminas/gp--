@@ -2,7 +2,10 @@ cmake_minimum_required (VERSION 2.8)
 
 project (gp--)
 
+if(MSVC)
+else()
 set (CMAKE_C_FLAGS "-std=c99")
+endif()
 
 set (src src)
 
@@ -15,7 +18,8 @@ set (HEADERS
     ${src}/lexer/lexical_state_machine.h
     ${src}/lexer/lexer.h
     ${src}/lexer/token.h
-    ${src}/parser/parser.h)
+    ${src}/parser/parser.h
+    ${src}/portability/portability.h)
 
 source_group (headers\\state_machine FILES
              ${src}/state_machine/state_machine.h)
@@ -27,6 +31,9 @@ source_group (headers\\lexer FILES
 
 source_group (headers\\parser FILES 
              ${src}/parser/parser.h)
+
+source_group (headers\\portability FILES 
+             ${src}/portability/portability.h)
 
 source_group (sources FILES ${src}/main.c)
 
