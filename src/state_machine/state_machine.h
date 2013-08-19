@@ -20,7 +20,7 @@ typedef struct STATE_MACHINE
 } STATE_MACHINE;
 
 void
-add_transition(STATE* first, 
+add_transition(STATE* first,
           STATE* second)
 {
     // We increase the buffer size that we want.
@@ -48,7 +48,7 @@ add_transition(STATE* first,
 Sets sm's current_state to one of its allowed transitions.
 */
 int
-execute_transition(STATE_MACHINE* sm, 
+execute_transition(STATE_MACHINE* sm,
                    char c)
 {
     for(size_t i=0; i < sm->current_state->num_transitions; i++)
