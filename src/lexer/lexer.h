@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <ctype.h>
 
 #include "lexer/token.h"
 #include "lexer/lexical_state_machine.h"
@@ -17,7 +18,8 @@ skip_nontokens_file(FILE* file,
     // Do transitions until execute_transition returns an error (no valid transition)
     while(1)
     {
-        int c = fgetc(file);
+        
+        int c = tolower(fgetc(file));
         if(c == EOF)
         {
             if(sm->current_state->return_token == T_INVALID)
@@ -71,7 +73,7 @@ next_token_file(FILE* file,
     size_t allocated = 1;
     size_t i = 0;
 
-    int c = fgetc(file);
+    int c = tolower(fgetc(file));
     if(c == EOF)
     {
         TOKEN t = {T_EOF, NULL};
@@ -99,7 +101,7 @@ next_token_file(FILE* file,
         }
         buffer[i] = sm->current_state->state;
         last_position = ftell(file);
-        c = fgetc(file);
+        c = tolower(fgetc(file));
         ++i;
     }
     // Null-terminate string.

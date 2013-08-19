@@ -116,7 +116,9 @@ PAIR keywords[] = {
     {"then", T_THEN},
     {"else", T_ELSE},
     {"for", T_FOR},
-    {"to", T_TO}
+    {"to", T_TO},
+    {"true", T_BOOLEAN_CONST},
+    {"false", T_BOOLEAN_CONST}
 };
 
 #endif // __TOKEN_H

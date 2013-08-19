@@ -476,6 +476,7 @@ make_nontoken_skipper(void)
         add_transition(whitespace_states + i, start_comment_brace);
         add_transition(whitespace_states + i, maybe_start_comment_bracket);
         add_transition(end_comment_brace, whitespace_states + i);
+        add_transition(end_comment_bracket, whitespace_states + i);
     }
 
     for(size_t i=0; i<num_whitespace; i++)
