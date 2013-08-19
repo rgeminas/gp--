@@ -8,22 +8,6 @@
 #ifndef __LEXER_H
 #define __LEXER_H
 
-TOKEN_TYPE
-next_token(char* string, STATE_MACHINE* sm)
-{
-    int i = 0;
-    if(string == "") return T_EOF;
-    //TODO: Consume string buffer.
-
-    // Do transitions until execute_transition returns an error (no valid transition)
-    while(!execute_transition(sm, string[i++]) && i < strlen(string)) ;
-
-    // Set sm back to its initial state so it can parse another string.
-    int ret = sm->current_state->return_token;
-    reset_machine(sm);
-    return ret;
-}
-
 TOKEN
 skip_nontokens_file(FILE* file,
                     STATE_MACHINE* sm)

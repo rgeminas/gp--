@@ -2,7 +2,7 @@
 #include "parser/parser.h"
 
 int
-main(size_t argc, char** argv)
+main(int argc, char** argv)
 {
     // Make whitespace/comment skipper and tokenizer.
     STATE_MACHINE* sm = make_full_tokenizer(tokens, 22, keywords, 25);
