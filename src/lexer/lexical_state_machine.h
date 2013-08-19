@@ -23,8 +23,8 @@ typedef struct TOKEN
     void* token_value;
 } TOKEN;
 
-int 
-compare_int(int a, 
+int
+compare_int(int a,
             int b)
 {
     if(a <  b) return -1;
@@ -32,8 +32,8 @@ compare_int(int a,
     if(a >  b) return 1;
 }
 
-int 
-compare_string_size(const void* p1, 
+int
+compare_string_size(const void* p1,
                     const void* p2)
 {
     int x1 = strlen(((PAIR*) p1)->token), x2 = strlen(((PAIR*) p2)->token);
@@ -50,11 +50,11 @@ returned state will recognize 'v', and have branches to
 a tree structure that can be traversed to find the TOKEN_TYPE
 of a string.
 */
-STATE* 
-make_basic_tokenizer_state(const PAIR * tokens, 
-                           size_t num_tokens, 
-                           char* value, 
-                           TOKEN_TYPE type, 
+STATE*
+make_basic_tokenizer_state(const PAIR * tokens,
+                           size_t num_tokens,
+                           char* value,
+                           TOKEN_TYPE type,
                            size_t depth)
 {
     STATE initial_state_val = { value[depth], NULL, 0, 0, type  };
@@ -92,8 +92,8 @@ Makes a state machine recognize any token in unsorted_tokens,
 returning T_ID for incomplete tokens.
 */
 void
-add_basic_tokenizing(STATE_MACHINE* sm, 
-                     PAIR* unsorted_tokens, 
+add_basic_tokenizing(STATE_MACHINE* sm,
+                     PAIR* unsorted_tokens,
                      size_t num_tokens)
 {
     PAIR* tokens = (PAIR*) malloc(num_tokens * sizeof(PAIR));
@@ -116,14 +116,14 @@ add_basic_tokenizing(STATE_MACHINE* sm,
 }
 
 /*
-Makes a state machine recognize any token in unsorted_tokens, 
+Makes a state machine recognize any token in unsorted_tokens,
 returning T_ID for incomplete tokens.
 */
 STATE* 
-make_basic_keyword_tokenizer_state(const PAIR * tokens, 
-                           size_t num_tokens, 
-                           char* value, 
-                           TOKEN_TYPE type, 
+make_basic_keyword_tokenizer_state(const PAIR * tokens,
+                           size_t num_tokens,
+                           char* value,
+                           TOKEN_TYPE type,
                            size_t depth)
 {
     STATE initial_state_val = { value[depth], NULL, 0, 0, type  };
@@ -157,12 +157,12 @@ make_basic_keyword_tokenizer_state(const PAIR * tokens,
 }
 
 /*
-Creates a state machine that recognizes any token in unsorted_tokens, 
+Creates a state machine that recognizes any token in unsorted_tokens,
 and returns T_ID for an incomplete token.
 */
 void
-add_basic_keyword_tokenizing(STATE_MACHINE* sm, 
-                     PAIR* unsorted_tokens, 
+add_basic_keyword_tokenizing(STATE_MACHINE* sm,
+                     PAIR* unsorted_tokens,
                      size_t num_tokens)
 {
     PAIR* tokens = (PAIR*) malloc(num_tokens * sizeof(PAIR));
@@ -248,7 +248,7 @@ Adds the non-conflicting id_alphanumeric_states to s for recognizing
 identifiers, such as function names et al.
 */
 void
-add_identifier_states(STATE* s, 
+add_identifier_states(STATE* s,
                       STATE* id_alphanumeric_states,
                       size_t num_alphanum)
 {
@@ -269,12 +269,12 @@ add_identifier_states(STATE* s,
 }
 
 void
-add_keyword_recognition(STATE_MACHINE* sm, 
+add_keyword_recognition(STATE_MACHINE* sm,
                         PAIR* unsorted_keywords,
                         size_t num_keywords)
 {
     size_t num_alpha = strlen(alpha), num_alphanum = strlen(alphanumerics);
-    
+
     PAIR* keywords = (PAIR*) malloc(num_keywords * sizeof(PAIR));
     memcpy(keywords, unsorted_keywords, num_keywords * sizeof(PAIR));
     qsort(keywords, num_keywords, sizeof(PAIR), compare_string_size);
@@ -283,7 +283,7 @@ add_keyword_recognition(STATE_MACHINE* sm,
 
     STATE* id_alpha_states = (STATE*) malloc(num_alpha * sizeof(STATE));
     STATE* id_alphanumeric_states = (STATE*) malloc(num_alphanum * sizeof(STATE));
-    
+
     for(size_t i=0; i<num_alpha; i++)
     {
         STATE id_alpha_state_val = { alpha[i], NULL, 0, 0, T_ID };
@@ -334,17 +334,17 @@ add_keyword_recognition(STATE_MACHINE* sm,
 }
 
 STATE_MACHINE*
-make_full_tokenizer(PAIR* unsorted_tokens, 
-                    size_t num_tokens, 
+make_full_tokenizer(PAIR* unsorted_tokens,
+                    size_t num_tokens,
                     PAIR* keywords,
                     size_t num_keywords)
 {
     STATE_MACHINE* sm = (STATE_MACHINE*) malloc(sizeof(STATE_MACHINE));
     STATE* initial_state = (STATE*) malloc(sizeof(STATE));
-    
+
     STATE initial_state_val = { 0, NULL, 0, 0, T_INVALID  };
     memcpy(initial_state, &initial_state_val, sizeof(STATE));
-    
+
     STATE_MACHINE sm_val = { initial_state, initial_state };
     memcpy(sm, &sm_val, sizeof(STATE_MACHINE));
 
@@ -357,7 +357,7 @@ make_full_tokenizer(PAIR* unsorted_tokens,
 /*
 Returns a state machine that skips brace_comments and whitespace.
 
-TODO: This is fully hand-coded. For the love of GodJesusAllah I've got to 
+TODO: This is fully hand-coded. For the love of GodJesusAllah I've got to
 automate this for different comment tags.
 */
 STATE_MACHINE*
@@ -400,7 +400,7 @@ make_nontoken_skipper(void)
     add_transition(maybe_end_comment_bracket, end_comment_bracket);
 
     STATE* states_inside_brace_comments = (STATE*) malloc((0x7e - 0x20 + 4) * sizeof(STATE));
-    
+
     int c = 0;
     for(char i=0x20; i<=0x7e; i++)
     {
@@ -426,7 +426,7 @@ make_nontoken_skipper(void)
         for(char j=0; j<0x7e - 0x20 + 4; j++)
         {
             add_transition(states_inside_brace_comments + i, states_inside_brace_comments + j);
-        }    
+        }
     }
 
     STATE* states_inside_bracket_comments = (STATE*) malloc((0x7e - 0x20 + 4) * sizeof(STATE));
@@ -441,7 +441,7 @@ make_nontoken_skipper(void)
             add_transition(states_inside_bracket_comments + c, maybe_end_comment_bracket);
             // If after *, a ) doesn't segue, we are still inside a comment.
             if(i != ')')
-                add_transition(maybe_end_comment_bracket, states_inside_bracket_comments + c); 
+                add_transition(maybe_end_comment_bracket, states_inside_bracket_comments + c);
             c++;
         }
     }
@@ -458,7 +458,7 @@ make_nontoken_skipper(void)
         for(char j=0; j<0x7e - 0x20 + 4; j++)
         {
             add_transition(states_inside_bracket_comments + i, states_inside_bracket_comments + j);
-        }    
+        }
     }
     STATE* whitespace_states = (STATE*) malloc(num_whitespace * sizeof(STATE));
     for(size_t i=0; i<num_whitespace; i++)
