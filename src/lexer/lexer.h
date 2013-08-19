@@ -23,7 +23,7 @@ skip_nontokens_file(FILE* file,
             if(sm->current_state->return_token == T_INVALID)
             {
                 TOKEN t = {T_INVALID, NULL};
-                fprintf(stderr, "Syntax error on file position %d.\n", last_position);
+                fprintf(stderr, "Syntax error on file position %ld.\n", last_position);
                 return t;
             }
             else
@@ -46,7 +46,7 @@ skip_nontokens_file(FILE* file,
     int ret = sm->current_state->return_token;
     if(ret == T_INVALID)
     {
-        fprintf(stderr, "Syntax error on file position %d.\n", last_position);
+        fprintf(stderr, "Syntax error on file position %ld.\n", last_position);
     }
     if(ret == T_REWIND_ONE)
     {
@@ -108,7 +108,7 @@ next_token_file(FILE* file,
     int ret = sm->current_state->return_token;
     if(ret == T_INVALID)
     {
-        fprintf(stderr, "Syntax error on file position %d.\n", last_position);
+        fprintf(stderr, "Syntax error on file position %ld.\n", last_position);
     }
     reset_machine(sm);
     TOKEN t = {ret, buffer};
