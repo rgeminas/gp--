@@ -27,11 +27,11 @@ next_token(char* string, STATE_MACHINE* sm)
 TOKEN
 skip_nontokens_file(FILE* file,
                     STATE_MACHINE* sm)
-{   
+{
     long int penultimate_position = 0;
     long int last_position = ftell(file);
     // Do transitions until execute_transition returns an error (no valid transition)
-    while(1) 
+    while(1)
     {
         int c = fgetc(file);
         if(c == EOF)
@@ -55,7 +55,7 @@ skip_nontokens_file(FILE* file,
             fseek(file, last_position, SEEK_SET);
             break;
         }
-        penultimate_position = last_position; 
+        penultimate_position = last_position;
         last_position = ftell(file);
     }
     // Set sm back to its initial state so it can skip more whitespace later.
@@ -86,7 +86,7 @@ next_token_file(FILE* file,
     char* buffer = (char*) malloc(sizeof(char));
     size_t allocated = 1;
     size_t i = 0;
-    
+
     int c = fgetc(file);
     if(c == EOF)
     {
@@ -107,7 +107,7 @@ next_token_file(FILE* file,
             fseek(file, last_position, SEEK_SET);
             break;
         }
-        
+
         if(i + 1 >= allocated)
         {
             allocated = allocated << 1;
