@@ -12,7 +12,7 @@ main(size_t argc, char** argv)
     if(argc == 1)
     {
         fprintf(stderr, "Usage: gp-- source_file.p\n");
-        retun 1;
+        return 1;
     }
     else
         f = fopen(argv[1], "r");
