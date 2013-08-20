@@ -76,7 +76,6 @@ main(int argc, char** argv)
         }
         else // 2ndary token unneeded
         {
-            free(p.token_value);
             printf("%s: %d\n", (char*) p.token_value, p.type);
         }
     }
