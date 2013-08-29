@@ -13,7 +13,7 @@ Usage: $./gp-- source_file.p
 
 Current State
 -------------
-Currently, only syntactic analysis is being done. An LR(1) parser for the language will be written Soon(TM).
+Currently, only syntactic analysis is being done. An LR(1) parser for the language will be written Soon<sup>TM</sup>.
 
 Lexer
 -----
