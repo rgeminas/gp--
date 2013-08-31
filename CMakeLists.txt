@@ -35,7 +35,7 @@ set (HEADERS
     ${src}/lexer/lexer.h
     ${src}/lexer/token.h
     ${src}/parser/parser.h
-    ${src}/parser/base_parser.h
+#    ${src}/parser/base_parser.h
     ${src}/portability/portability.h
     )
 
@@ -45,7 +45,7 @@ set (SOURCES
     ${src}/state_machine/state_machine.c
     ${src}/lexer/token.c
     ${src}/lexer/lexer.c
-    ${src}/parser/base_parser.tab.c
+#    ${src}/parser/base_parser.tab.c
     )
 
 source_group (headers\\state_machine FILES
@@ -82,7 +82,7 @@ set_source_files_properties (${SOURCES} PROPERTIES LANGUAGE CXX)
 endif ()
 
 add_executable (gp-- ${SOURCES} ${HEADERS} 
-               #${BISON_base_parser_OUTPUTS}
+               ${BISON_base_parser_OUTPUTS}
                )
 
 if (MSVC)

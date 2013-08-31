@@ -1,12 +1,14 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <strings.h>
 #include <ctype.h>
 
 #include "lexer/lexer.h"
 #include "lexer/token.h"
 #include "lexer/lexical_state_machine.h"
 #include "parser/base_parser.h"
+#include "portability/portability.h"
 
 extern PAIR tokens[];
 extern PAIR keywords[];
