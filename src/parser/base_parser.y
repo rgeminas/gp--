@@ -165,7 +165,7 @@ assignment_statement: variable_access T_ASSIGN expression
 procedure_statement: T_ID opt_brc_actual_parameter_list_brc
 ;
 
-opt_brc_actual_parameter_list_brc: T_LBRACKET actual_parameter_list  T_RBRACKET
+opt_brc_actual_parameter_list_brc: T_LBRACKET actual_parameter_list T_RBRACKET
 ;
 
 actual_parameter_list: actual_parameter star_comma_actual_parameter
@@ -245,7 +245,6 @@ multiplying_operator: T_TIMES
 ;
 
 factor: constant
-      | variable_access
       | T_LBRACKET expression T_RBRACKET
       | T_NOT factor
 ;
@@ -256,7 +255,7 @@ variable_access: T_ID
 constant: T_INT_CONST
         | T_REAL_CONST
         | T_BOOLEAN_CONST
-        | T_ID
+        | variable_access
 ;
 %%
 /*
