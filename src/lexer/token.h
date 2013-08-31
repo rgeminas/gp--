@@ -5,8 +5,9 @@ Definition of tokens returned by the lexical analysis compiler pass.
 #ifndef __TOKEN_H
 #define __TOKEN_H
 
-#define TOKEN_TYPE int
+#include "parser/base_parser.h"
 
+/*
 #define T_EOF                  0
 #define T_ID                   1
 #define T_INT_CONST            2
@@ -58,7 +59,9 @@ Definition of tokens returned by the lexical analysis compiler pass.
 #define T_FOR                  48
 #define T_TO                   49
 #define T_REWIND_ONE          254
-#define T_INVALID             255
+#define T_INVALID             256
+*/
+#define TOKEN_TYPE int
 
 typedef struct PAIR
 {
@@ -66,59 +69,8 @@ typedef struct PAIR
     TOKEN_TYPE type;
 } PAIR;
 
-PAIR tokens[] = {
-    {":=", T_ASSIGN},
-    {"+", T_PLUS},
-    {"+=", T_PLUS_EQ},
-    {"-", T_MINUS},
-    {"-=", T_MINUS_EQ},
-    {"*", T_TIMES},
-    {"*=", T_TIMES_EQ},
-    {"/", T_DIVIDE},
-    {"/=", T_DIVIDE_EQ},
-    {"<=", T_LEQ},
-    {">=", T_GEQ},
-    {">", T_GT},
-    {"<", T_LT},
-    {"<>", T_DIF},
-    {"=", T_EQ},
-    {";", T_SEMICOLON},
-    {":", T_COLON},
-    {".", T_PERIOD},
-    {"..", T_DOUBLE_PERIOD},
-    {"(", T_LBRACKET},
-    {")", T_RBRACKET},
-    {",", T_COMMA}
-};
+extern PAIR tokens[];
 
-PAIR keywords[] = {
-    {"program", T_PROGRAM },
-    {"procedure", T_PROCEDURE },
-    {"begin", T_BEGIN },
-    {"end", T_END },
-    {"if", T_IF },
-    {"else", T_ELSE },
-    {"while", T_WHILE },
-    {"do", T_DO },
-    {"div", T_DIV },
-    {"mod", T_MOD },
-    {"and", T_AND },
-    {"or", T_OR },
-    {"not", T_NOT },
-    {"var", T_VAR },
-    {"integer", T_INTEGER },
-    {"boolean", T_BOOLEAN },
-    {"real", T_REAL },
-    {"const", T_CONST },
-    {"repeat", T_REPEAT },
-    {"until", T_UNTIL },
-    {"if", T_IF},
-    {"then", T_THEN},
-    {"else", T_ELSE},
-    {"for", T_FOR},
-    {"to", T_TO},
-    {"true", T_BOOLEAN_CONST},
-    {"false", T_BOOLEAN_CONST}
-};
+extern PAIR keywords[];
 
 #endif // __TOKEN_H

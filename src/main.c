@@ -2,9 +2,41 @@
 #include "parser/parser.h"
 #include "portability/portability.h"
 
+extern int yyparse(void);
+
+extern PAIR tokens[];
+extern PAIR keywords[];
+
+extern STATE_MACHINE* _sm; 
+extern STATE_MACHINE* _wssm;
+extern FILE* _f;
+
 int
 main(int argc, char** argv)
 {
+    /*
+    if(argc == 1)
+    {
+        _f = fopen("parseMe.txt", "r");
+        fprintf(stderr, "Usage: gp-- source_file.p\n");
+        //return 1;
+    }
+    else*/
+    FILE* f = fopen("massaTestesLexica.txt", "r");
+    _f = f;
+    _sm = make_full_tokenizer(tokens, 22, keywords, 27);
+    _wssm = make_nontoken_skipper(); 
+
+    if(!yyparse())
+    {
+        puts("!Awwww yiss... who da parser? who da parser?");
+    }
+    else
+    {
+        puts("... nooOO!");
+    }
+    
+    /*
     // Make whitespace/comment skipper and tokenizer.
     STATE_MACHINE* sm = make_full_tokenizer(tokens, 22, keywords, 27);
     STATE_MACHINE* wsssm = make_nontoken_skipper();
@@ -79,5 +111,6 @@ main(int argc, char** argv)
             printf("%s: %d\n", (char*) p.token_value, p.type);
         }
     }
+    */
     return 0;
 }

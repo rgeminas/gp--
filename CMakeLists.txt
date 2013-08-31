@@ -1,5 +1,7 @@
 cmake_minimum_required (VERSION 2.8)
 
+find_package(BISON)
+
 if(MSVC)
 project (gp-- C CXX)
 else()
@@ -13,16 +15,31 @@ set (src src)
 
 include_directories (${src})
 
+# BISON_TARGET (base_parser 
+#              ${src}/parser/base_parser.y 
+#              ${src}/parser/base_parser.c
+#
+#              COMPILE_FLAGS
+#              "-d"
+#              )
+
 set (HEADERS
     ${src}/state_machine/state_machine.h
     ${src}/lexer/lexical_state_machine.h
     ${src}/lexer/lexer.h
     ${src}/lexer/token.h
     ${src}/parser/parser.h
+    ${src}/parser/base_parser.h
     ${src}/portability/portability.h)
 
 set (SOURCES
-    ${src}/main.c)
+    ${src}/main.c
+    ${src}/lexer/lexical_state_machine.c
+    ${src}/state_machine/state_machine.c
+    ${src}/lexer/token.c
+    ${src}/lexer/lexer.c
+    ${src}/parser/base_parser.tab.c
+    )
 
 source_group (headers\\state_machine FILES
              ${src}/state_machine/state_machine.h)
@@ -33,18 +50,29 @@ source_group (headers\\lexer FILES
              ${src}/lexer/lexer.h)
 
 source_group (headers\\parser FILES 
-             ${src}/parser/parser.h)
+             ${src}/parser/parser.h
+             ${src}/parser/base_parser.h
+             )
 
 source_group (headers\\portability FILES 
              ${src}/portability/portability.h)
 
 source_group (sources FILES ${src}/main.c)
+source_group (sources\\state_machine FILES ${src}/state_machine/state_machine.c)
+source_group (sources\\parser FILES ${src}/parser/base_parser.tab.c)
+source_group (sources\\lexer FILES 
+             ${src}/lexer/token.c
+             ${src}/lexer/lexer.c
+             ${src}/lexer/lexical_state_machine.c)
+             
 
 if (MSVC)
-SET_SOURCE_FILES_PROPERTIES (${SOURCES} PROPERTIES LANGUAGE CXX)
+set_source_files_properties (${SOURCES} PROPERTIES LANGUAGE CXX)
 endif ()
 
-add_executable (gp-- ${SOURCES} ${HEADERS})
+add_executable (gp-- ${SOURCES} ${HEADERS} 
+               #${BISON_base_parser_OUTPUTS}
+               )
 
 if (MSVC)
 set_property (TARGET gp-- PROPERTY LINKER_LANGUAGE CXX)
