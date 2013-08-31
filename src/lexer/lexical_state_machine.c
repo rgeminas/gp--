@@ -13,15 +13,6 @@ const char* const numerics = "1234567890";
 const char* const alphanumerics = "1234567890abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ_";
 const char* const whitespace = "\t\v\r\n ";
 
-/*
-typedef union TOKEN_VALUE
-{
-    int int_const;
-    float real_const;
-    int bool_const;
-    int token_index
-} TOKEN_VALUE;
-*/
 int
 compare_int(int a,
             int b)
@@ -183,7 +174,6 @@ add_basic_keyword_tokenizing(STATE_MACHINE* sm,
         add_transition(sm->initial_state, s);
     }
     free(tokens);
-//    return sm;
 }
 
 

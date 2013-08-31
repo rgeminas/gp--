@@ -21,6 +21,10 @@ next_token_file(FILE* file,
                 STATE_MACHINE* sm, 
                 STATE_MACHINE* wsssm);
 
+/*
+ Both these functions are needed for bison to 
+ parse the generated lexemes.
+*/
 int 
 yylex(void);
 

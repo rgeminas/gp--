@@ -75,8 +75,9 @@ extern int yyerror(char*);
 %token T_INVALID             256
 
 /*
-Notation: opt_XXX: EMPTY | XXX ;
-          mult_XXX: XXX | XXX mult_XXX
+Notation: opt_XXX: [ XXX ]
+          star_XXX: { XXX }
+          plus_XXX: XXX { XXX }
 */
 %%
 input: T_PROGRAM T_ID T_SEMICOLON block_body T_PERIOD
@@ -258,58 +259,3 @@ constant: T_INT_CONST
         | variable_access
 ;
 %%
-/*
-Program = “program” id “;” BlockBody “.” .
-BlockBody =
-	[ ConstantDefinitionPart ] 
-	[ VariableDefinitionPart ] { ProcedureDefinition }
-	CompoundStatement .
-ConstantDefinitionPart =
-	“const” ConstantDefinition { ConstantDefinition } .
-ConstantDefinition = id “=” Constant “;” .
-VariableDefinitionPart =
-	“var” VariableDefinition { VariableDefinition } .
-VariableDefinition = VariableGroup “;” .
-VariableGroup =
-	id { “,” id } “:” Type .
-Type = integer | boolean | real	
-ProcedureDefinition =
-	“procedure” id ProcedureBlock “;” .
-ProcedureBlock =
-	[ “(“ FormalParameterList “)” ] “;” BlockBody .
-FormalParameterList =
-	ParameterDefinition { “;” ParameterDefinition } .
-ParameterDefinition = VariableGroup .
-Statement =
-AssignmentStatement | ProcedureStatement | 
-IfStatement | WhileStatement | 
-CompoundStatement | Empty .
-AssignmentStatement = 
-	VariableAccess “:=” Expression .
-ProcedureStatement =
-	id [ “(“ ActualParameterList “)” ] .
-ActualParameterList =
-	ActualParameter{ “,” ActualParameter } .
-ActualParameter = Expression | VariableAccess .
-IfStatement =
-	“if” Expression “then” Statement
-		[ “else” Statement ] .
-WhileStatement = 
-	“while” Expression “do” Statement .
-CompoundStatement =
-	“begin” Statement { “;” Statement } “end” .
-Expression = SimpleExpression
-	[ RelationalOperator SimpleExpression ].
-RelationalOperator =
-	"<" | "=" | ">" | "<=" | "<>" | ">=" .
-SimpleExpression =
-	[ SignOperator ] Term { AddingOperator Term } .
-SignOperator = "+" | "-" .
-AddingOperator = "+" | "-" | "or".
-Term = Factor{ MultiplyingOperator Factor }.
-MultiplyingOperator = "*" | "div" | "mod" | "and" .
-Factor = Constant | VariableAccess |
-	"(" Expression ")" | "not" Factor .
-VariableAccess = id .
-Constant = intConst | realConst | booleanCont | id.
-*/

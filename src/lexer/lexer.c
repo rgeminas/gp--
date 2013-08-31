@@ -11,8 +11,8 @@
 extern PAIR tokens[];
 extern PAIR keywords[];
 
-STATE_MACHINE* _sm; 
-STATE_MACHINE* _wssm; 
+STATE_MACHINE* _sm;
+STATE_MACHINE* _wssm;
 FILE* _f = NULL;
 
 extern int yytype;
@@ -135,7 +135,6 @@ yylex(void)
     {
         return 0;
     }
-
     if(p.type == T_ID)
     {
         yylval.id_name = p.token_value;
@@ -150,7 +149,7 @@ yylex(void)
     }
     else if(p.type == T_BOOLEAN_CONST)
     {
-        if(stricmp((char*)p.token_value, "true"))
+        if(stricmp((char*) p.token_value, "true"))
         {
             yylval.int_const = 1;
         }
