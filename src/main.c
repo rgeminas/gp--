@@ -23,7 +23,7 @@ main(int argc, char** argv)
     yydebug = 0;
     if(argc == 1)
     {
-        fprintf(stderr, "Usage: gp-- [-d] [--help] source_file.p\n");
+        fprintf(stderr, "Usage: gp-- [-d] [--help] source_file.pa\n");
         return 1;
     }
     else
@@ -32,7 +32,7 @@ main(int argc, char** argv)
         {
             if(!strcmp(argv[i], "--help"))
             {
-                puts("Usage: gp-- [-d] [--help] source_file.p\n");
+                puts("Usage: gp-- [-d] [--help] source_file.pa\n");
                 puts("Options:");
                 puts("--help: Show help.");
                 puts("-d/--debug: Show bison automaton trace.");
@@ -42,12 +42,17 @@ main(int argc, char** argv)
             {
                 yydebug = 1;
             }
+            else if(!strncmp(argv[i], "-", 1))
+            {
+                printf("Unknown option %s.\n", argv[i]);
+                return 1;
+            }
             else
             {
                 FILE* f = fopen(argv[i], "r");
                 if(f == NULL)
                 {
-                    printf("Could not open file: %s", argv[i]);
+                    printf("Could not open file: %s.\n", argv[i]);
                     return 1;
                 }
                 _f = f;
