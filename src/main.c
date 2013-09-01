@@ -20,16 +20,34 @@ extern int yydebug;
 int
 main(int argc, char** argv)
 {
-    yydebug = 1;
+    yydebug = 0;
     if(argc == 1)
     {
-        fprintf(stderr, "Usage: gp-- source_file.p\n");
+        fprintf(stderr, "Usage: gp-- [-d] [--help] source_file.p\n");
         return 1;
     }
     else
     {
-        FILE* f = fopen(argv[1], "r");
-        _f = f;
+        for(int i=1; i < argc; i++)
+        {
+            if(!strcmp(argv[i], "--help"))
+            {
+                puts("Usage: gp-- [-d] [--help] source_file.p\n");
+                puts("Options:");
+                puts("-d/--debug: Show bison automaton trace.");
+                puts("--help: Show help.");
+                return 0;
+            }
+            else if(!strcmp(argv[i], "-d") || !strcmp(argv[i], "--debug"))
+            {
+                yydebug = 1;
+            }
+            else
+            {
+                FILE* f = fopen(argv[i], "r");
+                _f = f;
+            }
+        }
     }
     
     _sm = make_full_tokenizer(tokens, 22, keywords, 27);
