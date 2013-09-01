@@ -80,7 +80,7 @@ next_token_file(FILE* file,
     {
         return return_skip;
     }
-    char* buffer = (char*) malloc(sizeof(char));
+    char* buffer = malloc(sizeof(char));
     size_t allocated = 1;
     size_t i = 0;
 
@@ -108,7 +108,7 @@ next_token_file(FILE* file,
         if(i + 1 >= allocated)
         {
             allocated = allocated << 1;
-            buffer = (char*) realloc(buffer, allocated * sizeof(char));
+            buffer = realloc(buffer, allocated * sizeof(char));
         }
         buffer[i] = sm->current_state->state;
         last_position = ftell(file);

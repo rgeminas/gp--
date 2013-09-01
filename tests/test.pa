@@ -8,7 +8,7 @@ program HelloWorld;
         e, f, g :(* yes, they are integers *) integer;
         h, i : real;
 
-    procedure proc1 ;
+    procedure ProcedureWithNoParams ;
         const
             a = 3;
             b = 2.;
@@ -21,14 +21,14 @@ program HelloWorld;
             e := a + 2
         end
     ;
-    procedure proc2(a, b, c : integer; d, e, f : real);
+    procedure ProcedureWithParams(a, b, c : integer; d, e, f : real);
         begin
             f := f or a
         end
     ;
-
+
 begin
-  WriteLn(1 + x * 2, y2)
-  {no ";" is required after the last statement of a block - 
-   adding one adds a "null statement" to the program}
+  procedureWithParams(1 + a * 2, b, c, c, c, b)
+  { no ";" is required after the last statement of a block - 
+   adding one adds a "null statement" to the program }
 end.
