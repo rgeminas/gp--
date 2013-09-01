@@ -1,0 +1,34 @@
+program HelloWorld;
+    const
+        a = 3;
+        b = 2.;
+        c = 3.4;
+        d = true;
+    var
+        e, f, g :(* yes, they are integers *) integer;
+        h, i : real;
+
+    procedure meDomina ;
+        const
+            a = 3;
+            b = 2.;
+            c = 3.4;
+            d = true;
+        var
+            e, f, g : integer;
+            h, i : real;
+        begin
+            e := a + 2
+        end
+    ;
+    procedure meDomina2(a, b, c : integer; d, e, f : real);
+        begin
+            f := f or a
+        end
+    ;
+
+begin
+  WriteLn(1 + x * 2, y2)
+  {no ";" is required after the last statement of a block - 
+   adding one adds a "null statement" to the program}
+end.
