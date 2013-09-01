@@ -79,11 +79,13 @@ Notation: opt_XXX: [ XXX ]
           star_XXX: { XXX }
           plus_XXX: XXX { XXX }
 */
+%right T_THEN T_ELSE
+
 %%
 input: T_PROGRAM T_ID T_SEMICOLON block_body T_PERIOD
 ;
 
-block_body: opt_constant_definition_part opt_variable_definition_part star_procedure_definition compound_statement T_PERIOD
+block_body: opt_constant_definition_part opt_variable_definition_part star_procedure_definition compound_statement
 ;
 
 opt_constant_definition_part: 
@@ -177,14 +179,10 @@ star_comma_actual_parameter:
 ;
 
 actual_parameter: expression
-                | variable_access
 ;
 
-if_statement: T_IF expression T_THEN statement opt_else_statement
-;
-
-opt_else_statement: 
-                  | T_ELSE statement
+if_statement: T_IF expression T_THEN statement
+            | T_IF expression T_THEN statement T_ELSE statement
 ;
 
 while_statement: T_WHILE expression T_DO statement
@@ -212,10 +210,8 @@ relational_operator: T_LT
                    | T_GEQ
 ;
 
-simple_expression: opt_sign_operator term star_adding_operator_term
-;
-
-opt_sign_operator: | sign_operator
+simple_expression: sign_operator term star_adding_operator_term
+                 | term star_adding_operator_term
 ;
 
 sign_operator: T_PLUS

@@ -15,9 +15,12 @@ extern STATE_MACHINE* _wssm;
 // File to be parsed.
 extern FILE* _f;
 
+extern int yydebug;
+
 int
 main(int argc, char** argv)
 {
+    yydebug = 1;
     if(argc == 1)
     {
         fprintf(stderr, "Usage: gp-- source_file.p\n");

@@ -164,6 +164,7 @@ yylex(void)
     {
         yylval.id_name = p.token_value;
     }
+    //printf("%d ", p.type);
     return p.type;
 }
 
@@ -172,5 +173,6 @@ yyerror(char* a)
 {
     puts("Parsing error");
     puts(a);
+    puts("");
     return 0;
 }

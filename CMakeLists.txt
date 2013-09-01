@@ -24,7 +24,7 @@ BISON_TARGET (base_parser
              VERBOSE
              ${CMAKE_SOURCE_DIR}/${src}/parser/base_parser.output
              COMPILE_FLAGS
-             "--defines=${src}/parser/base_parser.h"
+             "--defines=${src}/parser/base_parser.h -t"
              )
 
 
