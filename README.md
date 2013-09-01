@@ -7,14 +7,18 @@ gp-- (Gemignani's Pascal-- Compiler) is a compiler for a restricted subset of Pa
 
 Installation and usage
 ----------------------
-To compile gp--, you must have cmake installed and a C99-compatible compiler (MSVC, notably, doesn't provide C99 support).
+To compile gp--, you must have cmake and bison installed and a C99-compatible compiler (MSVC, notably, doesn't provide C99 support, but we chose to support it regardless by compiling gp-- with C++ under MSvC).
 
-Usage: $./gp-- source_file.p
+Usage: $./gp-- source_file.pa
 
 Current State
 -------------
-Currently, only syntactic analysis is being done. An LR(1) parser for the language will be written Soon(TM) using bison.
+Currently, lexing and parsing are complete, though code generation doesn't happen yet and there is no AST construction as of now.
 
 Lexer
 -----
 The lexer uses a custom simple state machine implementation, and constructs a tokenizer based on very simple rules: it is given a set of keywords and a set of non-keyword tokens. Alphanumeric tokens that aren't keywords are signaled as identifiers. 
+
+Parser
+------
+The parser is an LALR(1) parser written using bison.
