@@ -73,7 +73,7 @@ make_basic_tokenizer_state(const PAIR * tokens,
             add_transition(&initial_state_val, to_add);
         }
     }
-    STATE* state = malloc(sizeof(STATE));
+    STATE* state = (STATE*) malloc(sizeof(STATE));
     memcpy(state, &initial_state_val, sizeof(STATE));
     return state;
 }
@@ -87,7 +87,7 @@ add_basic_tokenizing(STATE_MACHINE* sm,
                      PAIR* unsorted_tokens,
                      size_t num_tokens)
 {
-    PAIR* tokens = malloc(num_tokens * sizeof(PAIR));
+    PAIR* tokens = (PAIR*) malloc(num_tokens * sizeof(PAIR));
     memcpy(tokens, unsorted_tokens, num_tokens * sizeof(PAIR));
     qsort(tokens, num_tokens, sizeof(PAIR), compare_string_size);
 
@@ -142,7 +142,7 @@ make_basic_keyword_tokenizer_state(const PAIR * tokens,
             add_transition(&initial_state_val, to_add);
         }
     }
-    STATE* state = malloc(sizeof(STATE));
+    STATE* state = (STATE*) malloc(sizeof(STATE));
     memcpy(state, &initial_state_val, sizeof(STATE));
     return state;
 }
@@ -156,7 +156,7 @@ add_basic_keyword_tokenizing(STATE_MACHINE* sm,
                      PAIR* unsorted_tokens,
                      size_t num_tokens)
 {
-    PAIR* tokens = malloc(num_tokens * sizeof(PAIR));
+    PAIR* tokens = (PAIR*) malloc(num_tokens * sizeof(PAIR));
     memcpy(tokens, unsorted_tokens, num_tokens * sizeof(PAIR));
     qsort(tokens, num_tokens, sizeof(PAIR), compare_string_size);
 
@@ -183,11 +183,11 @@ Makes the state machine capable of recognizing real and integer numbers.
 void
 add_number_recognition(STATE_MACHINE* sm)
 {
-    STATE* numeric_states =  malloc(10 * sizeof(STATE));
-    STATE* real_states =  malloc(10 * sizeof(STATE));
+    STATE* numeric_states = (STATE*) malloc(10 * sizeof(STATE));
+    STATE* real_states = (STATE*) malloc(10 * sizeof(STATE));
     // State for reading a dot after a number
     STATE s_real_val = { '.', NULL, 0, 0, T_REAL_CONST };
-    STATE* s_real =  malloc(sizeof(STATE));
+    STATE* s_real = (STATE*) malloc(sizeof(STATE));
     memcpy(s_real, &s_real_val, sizeof(STATE));
 
     //Constructs states for real numbers after the dot.
@@ -265,14 +265,14 @@ add_keyword_recognition(STATE_MACHINE* sm,
 {
     size_t num_alpha = strlen(alpha), num_alphanum = strlen(alphanumerics);
 
-    PAIR* keywords =  malloc(num_keywords * sizeof(PAIR));
+    PAIR* keywords = (PAIR*) malloc(num_keywords * sizeof(PAIR));
     memcpy(keywords, unsorted_keywords, num_keywords * sizeof(PAIR));
     qsort(keywords, num_keywords, sizeof(PAIR), compare_string_size);
 
     add_basic_keyword_tokenizing(sm, unsorted_keywords, num_keywords);
 
-    STATE* id_alpha_states = malloc(num_alpha * sizeof(STATE));
-    STATE* id_alphanumeric_states = malloc(num_alphanum * sizeof(STATE));
+    STATE* id_alpha_states = (STATE*) malloc(num_alpha * sizeof(STATE));
+    STATE* id_alphanumeric_states = (STATE*) malloc(num_alphanum * sizeof(STATE));
 
     for(size_t i=0; i<num_alpha; i++)
     {
@@ -329,8 +329,8 @@ make_full_tokenizer(PAIR* unsorted_tokens,
                     PAIR* keywords,
                     size_t num_keywords)
 {
-    STATE_MACHINE* sm = malloc(sizeof(STATE_MACHINE));
-    STATE* initial_state = malloc(sizeof(STATE));
+    STATE_MACHINE* sm = (STATE_MACHINE*) malloc(sizeof(STATE_MACHINE));
+    STATE* initial_state = (STATE*) malloc(sizeof(STATE));
 
     STATE initial_state_val = { 0, NULL, 0, 0, T_INVALID  };
     memcpy(initial_state, &initial_state_val, sizeof(STATE));
@@ -354,16 +354,16 @@ STATE_MACHINE*
 make_nontoken_skipper(void)
 {
     size_t num_whitespace = strlen(whitespace);
-    STATE_MACHINE* sm = malloc(sizeof(STATE_MACHINE));
+    STATE_MACHINE* sm = (STATE_MACHINE*) malloc(sizeof(STATE_MACHINE));
 
     // Fugly, but necessary because this is fucking c
-    STATE* initial_state = malloc(sizeof(STATE));
-    STATE* start_comment_brace = malloc(sizeof(STATE));
-    STATE* end_comment_brace = malloc(sizeof(STATE));
-    STATE* maybe_start_comment_bracket = malloc(sizeof(STATE));
-    STATE* start_comment_bracket = malloc(sizeof(STATE));
-    STATE* maybe_end_comment_bracket = malloc(sizeof(STATE));
-    STATE* end_comment_bracket = malloc(sizeof(STATE));
+    STATE* initial_state = (STATE*) malloc(sizeof(STATE));
+    STATE* start_comment_brace = (STATE*) malloc(sizeof(STATE));
+    STATE* end_comment_brace = (STATE*) malloc(sizeof(STATE));
+    STATE* maybe_start_comment_bracket = (STATE*) malloc(sizeof(STATE));
+    STATE* start_comment_bracket = (STATE*) malloc(sizeof(STATE));
+    STATE* maybe_end_comment_bracket = (STATE*) malloc(sizeof(STATE));
+    STATE* end_comment_bracket = (STATE*) malloc(sizeof(STATE));
 
     STATE initial_state_val = { 0, NULL, 0, 0, T_ID };
     STATE start_comment_brace_val = { '{', NULL, 0, 0, T_INVALID };
@@ -389,7 +389,7 @@ make_nontoken_skipper(void)
     add_transition(start_comment_bracket, maybe_end_comment_bracket);
     add_transition(maybe_end_comment_bracket, end_comment_bracket);
 
-    STATE* states_inside_brace_comments = malloc((0x7e - 0x20 + 4) * sizeof(STATE));
+    STATE* states_inside_brace_comments = (STATE*) malloc((0x7e - 0x20 + 4) * sizeof(STATE));
 
     int c = 0;
     for(char i=0x20; i<=0x7e; i++)
@@ -419,7 +419,7 @@ make_nontoken_skipper(void)
         }
     }
 
-    STATE* states_inside_bracket_comments = malloc((0x7e - 0x20 + 4) * sizeof(STATE));
+    STATE* states_inside_bracket_comments = (STATE*) malloc((0x7e - 0x20 + 4) * sizeof(STATE));
     c = 0;
     for(char i=0x20; i<=0x7e; i++)
     {
@@ -450,7 +450,7 @@ make_nontoken_skipper(void)
             add_transition(states_inside_bracket_comments + i, states_inside_bracket_comments + j);
         }
     }
-    STATE* whitespace_states = malloc(num_whitespace * sizeof(STATE));
+    STATE* whitespace_states = (STATE*) malloc(num_whitespace * sizeof(STATE));
     for(size_t i=0; i<num_whitespace; i++)
     {
         STATE state = { whitespace[i], NULL, 0, 0, T_ID };

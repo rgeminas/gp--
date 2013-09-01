@@ -12,7 +12,7 @@ add_transition(STATE* first,
     if(first->_allocated_mem == 0)
     {
         ++first->_allocated_mem;
-        first->allowed_transitions = malloc(sizeof(STATE*));
+        first->allowed_transitions = (STATE**) malloc(sizeof(STATE*));
     }
     // If we don't have enough memory, give us double the memory we have now!
     // The 2x figure is a speed tradeoff. The amount of reallocs needed is O(log(n)),
