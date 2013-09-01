@@ -8,7 +8,7 @@ program HelloWorld;
         e, f, g :(* yes, they are integers *) integer;
         h, i : real;
 
-    procedure meDomina ;
+    procedure proc1 ;
         const
             a = 3;
             b = 2.;
@@ -21,7 +21,7 @@ program HelloWorld;
             e := a + 2
         end
     ;
-    procedure meDomina2(a, b, c : integer; d, e, f : real);
+    procedure proc2(a, b, c : integer; d, e, f : real);
         begin
             f := f or a
         end
