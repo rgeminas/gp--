@@ -168,7 +168,8 @@ assignment_statement: variable_access T_ASSIGN expression
 procedure_statement: T_ID opt_brc_actual_parameter_list_brc
 ;
 
-opt_brc_actual_parameter_list_brc: T_LBRACKET actual_parameter_list T_RBRACKET
+opt_brc_actual_parameter_list_brc:
+                                 | T_LBRACKET actual_parameter_list T_RBRACKET
 ;
 
 actual_parameter_list: actual_parameter star_comma_actual_parameter
