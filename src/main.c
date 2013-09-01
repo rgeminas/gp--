@@ -34,8 +34,8 @@ main(int argc, char** argv)
             {
                 puts("Usage: gp-- [-d] [--help] source_file.p\n");
                 puts("Options:");
-                puts("-d/--debug: Show bison automaton trace.");
                 puts("--help: Show help.");
+                puts("-d/--debug: Show bison automaton trace.");
                 return 0;
             }
             else if(!strcmp(argv[i], "-d") || !strcmp(argv[i], "--debug"))
@@ -45,6 +45,11 @@ main(int argc, char** argv)
             else
             {
                 FILE* f = fopen(argv[i], "r");
+                if(f == NULL)
+                {
+                    printf("Could not open file: %s", argv[i]);
+                    return 1;
+                }
                 _f = f;
             }
         }
