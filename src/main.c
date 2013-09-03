@@ -1,5 +1,5 @@
 #include "lexer/lexer.h"
-#include "parser/parser.h"
+#include "parser/base_parser.h"
 #include "portability/portability.h"
 
 // Bison-defined parsing function.

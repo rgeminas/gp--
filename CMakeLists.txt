@@ -1,6 +1,7 @@
 cmake_minimum_required (VERSION 2.8)
+set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake/modules/")
 
-find_package(BISON REQUIRED)
+find_package(BISON2 REQUIRED)
 
 if(MSVC)
 project (gp-- C CXX)
@@ -20,14 +21,13 @@ message (STATUS ${CMAKE_SOURCE_DIR})
 BISON_TARGET (base_parser 
              ${CMAKE_SOURCE_DIR}/${src}/parser/base_parser.y 
              ${CMAKE_SOURCE_DIR}/${src}/parser/base_parser.tab.c
-
+             HEADER
+             ${CMAKE_SOURCE_DIR}/${src}/parser/base_parser.h
              VERBOSE
              ${CMAKE_SOURCE_DIR}/${src}/parser/base_parser.output
              COMPILE_FLAGS
-             "--defines=${src}/parser/base_parser.h -t"
+             "-t" # Enable debugging.
              )
-
-
 
 set (HEADERS
     ${src}/state_machine/state_machine.h
@@ -48,6 +48,7 @@ set (SOURCES
 #    ${src}/parser/base_parser.tab.c
     )
 
+if(MSVC)
 source_group (headers\\state_machine FILES
              ${src}/state_machine/state_machine.h
              )
@@ -60,7 +61,7 @@ source_group (headers\\lexer FILES
 
 source_group (headers\\parser FILES 
              ${src}/parser/parser.h
-             ${src}/parser/base_parser.h
+             ${CMAKE_SOURCE_DIR}/${src}/parser/base_parser.h
              )
 
 source_group (headers\\portability FILES 
@@ -75,14 +76,18 @@ source_group (sources\\lexer FILES
              ${src}/lexer/lexer.c
              ${src}/lexer/lexical_state_machine.c
              )
-             
+endif()
 
 if (MSVC)
-set_source_files_properties (${SOURCES} PROPERTIES LANGUAGE CXX)
+set_source_files_properties (${SOURCES} ${BISON_base_parser_OUTPUTS} PROPERTIES LANGUAGE CXX)
+else ()
+set_source_files_properties (${SOURCES} ${BISON_base_parser_OUTPUTS} PROPERTIES LANGUAGE C)
 endif ()
 
-add_executable (gp-- ${SOURCES} ${HEADERS} 
+add_executable (gp-- 
                ${BISON_base_parser_OUTPUTS}
+               ${SOURCES} 
+               ${HEADERS} 
                )
 
 if (MSVC)
