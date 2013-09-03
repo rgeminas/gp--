@@ -7,7 +7,7 @@ gp-- (Gemignani's Pascal-- Compiler) is a compiler for a restricted subset of Pa
 
 Installation and usage
 ----------------------
-To compile gp--, you must have cmake and bison installed and a C99-compatible compiler (MSVC, notably, doesn't provide C99 support, but we intend to support it regardless by compiling gp-- with C++ under MSVC. Currently we do NOT support MSVC).
+To compile gp--, you must have cmake and bison installed and a C99-compatible compiler (MSVC, notably, doesn't provide C99 support, but we intend to support it regardless by compiling gp-- with C++ under MSVC).
 
 Usage: $./gp-- source_file.pa
 
