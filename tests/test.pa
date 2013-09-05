@@ -26,7 +26,7 @@ program HelloWorld;
             f := f or a
         end
     ;
-
+
 begin
   procedureWithParams(1 + a * 2, b, c, c, c, b)
   { no ";" is required after the last statement of a block - 

@@ -18,7 +18,7 @@ extern int yyerror(char*);
 %union {
     int int_const;
     float real_const;
-    char* id_name;
+    size_t id_secondary;
 }
 
 %token T_EOF                  0

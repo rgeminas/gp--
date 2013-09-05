@@ -22,6 +22,10 @@ FILE* _f = NULL;
 extern int yytype;
 extern YYSTYPE yylval;
 
+char** secondary_tokens = (char**) malloc(sizeof(char*));
+size_t sec_alloc = 1;
+size_t sec_i = 0;
+
 TOKEN
 skip_nontokens_file(FILE* file,
                     STATE_MACHINE* sm)
@@ -141,7 +145,26 @@ yylex(void)
     }
     if(p.type == T_ID)
     {
-        yylval.id_name = p.token_value;
+        if(sec_alloc <= sec_i)
+        {
+            sec_alloc = sec_alloc << 1;
+            secondary_tokens = (char**) realloc(secondary_tokens, sec_alloc * sizeof(char*));
+        }
+        size_t i;
+        for(i=0; i<sec_i; ++i)
+        {
+            if(!stricmp(secondary_tokens[i], p.token_value))
+            {
+                break;
+            }
+        }
+        // If we went through the full loop without a match, add a new secondary token.
+        if(i == sec_i)
+        {
+            secondary_tokens[sec_i++] = p.token_value;
+        }
+        // Set secondary token value.
+        yylval.id_secondary = i;
     }
     else if(p.type == T_INT_CONST)
     {
@@ -164,7 +187,7 @@ yylex(void)
     }
     else // 2ndary token unneeded
     {
-        yylval.id_name = p.token_value;
+        //yylval.id_name = p.token_value;
     }
     //printf("%d ", p.type);
     return p.type;
