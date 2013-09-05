@@ -6,6 +6,7 @@
 
 #include <lexer/lexer.h>
 #include <lexer/token.h>
+#include <symrec/symrec.h>
 
 extern int yylex(void);
 extern int yyerror(char*);
@@ -19,6 +20,7 @@ extern int yyerror(char*);
     int int_const;
     float real_const;
     size_t id_secondary;
+    struct SYMREC* record;
 }
 
 %token T_EOF                  0

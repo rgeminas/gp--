@@ -35,6 +35,7 @@ set (HEADERS
     ${src}/lexer/lexer.h
     ${src}/lexer/token.h
     ${src}/parser/parser.h
+    ${src}/symrec/symrec.h
 #    ${src}/parser/base_parser.h
     ${src}/portability/portability.h
     )
@@ -68,6 +69,9 @@ source_group (headers\\portability FILES
              ${src}/portability/portability.h
              )
 
+source_group (headers\\symrec FILES 
+             ${src}/symrec/symrec.h
+             )
 source_group (sources FILES ${src}/main.c)
 source_group (sources\\state_machine FILES ${src}/state_machine/state_machine.c)
 source_group (sources\\parser FILES ${src}/parser/base_parser.tab.c)
