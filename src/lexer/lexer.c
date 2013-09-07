@@ -1,10 +1,10 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#ifndef _MSC_VER
-#include <strings.h>
-#endif
 #include <ctype.h>
+#ifndef _MSC_VER
+  #include <strings.h>
+#endif
 
 #include "lexer/lexer.h"
 #include "lexer/token.h"

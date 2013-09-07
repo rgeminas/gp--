@@ -195,7 +195,7 @@ compound_statement: T_BEGIN statement star_comma_statement T_END
 ;
 
 star_comma_statement: 
-                    | T_COMMA statement star_comma_statement
+                    | T_SEMICOLON statement star_comma_statement
 ;
 
 expression: simple_expression opt_relational_operator_simple_expression

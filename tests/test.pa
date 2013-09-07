@@ -28,7 +28,8 @@ program HelloWorld;
     ;
 
 begin
-  procedureWithParams(1 + a * 2, b, c, c, c, b)
+  procedureWithParams(1 + a * 2, b, c, c, c, b);
+  procedureWithNoParams
   { no ";" is required after the last statement of a block - 
    adding one adds a "null statement" to the program }
 end.

@@ -23,7 +23,7 @@ main(int argc, char** argv)
     yydebug = 0;
     if(argc == 1)
     {
-        fprintf(stderr, "Usage: gp-- [-d] [--help] source_file.pa\n");
+        fprintf(stderr, "Usage: gp-- [--debug] [--help] source_file.pa\n");
         return 1;
     }
     else
@@ -32,13 +32,13 @@ main(int argc, char** argv)
         {
             if(!strcmp(argv[i], "--help"))
             {
-                puts("Usage: gp-- [-d] [--help] source_file.pa\n");
+                puts("Usage: gp-- [--debug] [--help] source_file.pa\n");
                 puts("Options:");
                 puts("--help: Show help.");
-                puts("-d/--debug: Show bison automaton trace.");
+                puts("--debug: Show bison automaton trace.");
                 return 0;
             }
-            else if(!strcmp(argv[i], "-d") || !strcmp(argv[i], "--debug"))
+            else if(!strcmp(argv[i], "--debug"))
             {
                 yydebug = 1;
             }

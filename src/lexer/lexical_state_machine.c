@@ -5,7 +5,7 @@
 #include <string.h>
 
 #ifndef MAX_IDENTIFIER_LENGTH
-#define MAX_IDENTIFIER_LENGTH 16
+  #define MAX_IDENTIFIER_LENGTH 16
 #endif
 
 const char* const alpha = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ_";
