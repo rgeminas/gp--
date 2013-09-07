@@ -7,8 +7,7 @@ find_package (BISON2 REQUIRED)
 if (MSVC)
     project (gp-- C CXX)
     set (CMAKE_CXX_FLAGS "")
-    set (CMAKE_CXX_FLAGS_DEBUG "")
-    set (CMAKE_CXX_FLAGS "")
+    set (CMAKE_CXX_FLAGS_DEBUG "-Zi")
 else ()
     project (gp-- C)
     set (CMAKE_C_FLAGS "-std=c99")
@@ -79,7 +78,7 @@ if(MSVC)
     source_group (sources\\parser FILES ${src}/parser/base_parser.tab.c)
     source_group (sources\\lexer FILES 
                  ${src}/lexer/token.c
-                  ${src}/lexer/lexer.c
+                 ${src}/lexer/lexer.c
                  ${src}/lexer/lexical_state_machine.c
                  )
 endif()

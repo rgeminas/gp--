@@ -16,12 +16,16 @@ typedef struct SYMREC
 /*
  Returns the first record found in the scope of record
 */
-SYMREC* find_in_scope(SYMREC* scope_head, size_t id);
+SYMREC* 
+find_in_scope(SYMREC* scope_head, 
+              size_t id);
 
 /*
  Adds record to head's tail.
 */
-void add(SYMREC** head, SYMREC* record);
+void 
+add(SYMREC** head, 
+    SYMREC* record);
 
 /*
  Searches for id in any of tail's superscopes, starting on
@@ -42,6 +46,8 @@ void add(SYMREC** head, SYMREC* record);
 |___________|
 
 */
-SYMREC* find(SYMREC** tail, SYMREC** head, size_t id);
+SYMREC* find(SYMREC** tail, 
+             SYMREC** head, 
+             size_t id);
 
 #endif
