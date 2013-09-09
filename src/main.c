@@ -65,11 +65,11 @@ main(int argc, char** argv)
 
     if(!yyparse())
     {
-        puts("!Awwww yiss... who da parser? who da parser?");
+        puts("Parsing successful! Wheeeeee!");
     }
     else
     {
-        puts("... nooOO!");
+        puts("Parsing unsuccessful.");
     }
     return 0;
 }
