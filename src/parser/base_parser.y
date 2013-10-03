@@ -1,38 +1,32 @@
 %{
 
-/*
- To generate the parser run "$ bison base_parser.y"
-*/
-
 #include <lexer/lexer.h>
 #include <lexer/token.h>
-#include <symrec/symrec.h>
+#include <scope/symrec.h>
 
 extern int yylex(void);
 extern int yyerror(char*);
-/*
-%output  "base_parser.c"
-%defines "base_parser.h"
-*/
+
 %}
 
-%union {
+%union 
+{
     int int_const;
     float real_const;
-    size_t id_secondary;
+    size_t id;
     struct SYMREC* record;
 }
 
-%token T_EOF                  0
-%token T_ID                   1
-%token T_INT_CONST            2
-%token T_REAL_CONST           3
-%token T_BOOLEAN_CONST        4
-%token T_PROGRAM              5
-%token T_PROCEDURE            6
-%token T_BEGIN                7
-%token T_END                  8
-%token T_IF                   9
+%token T_EOF                   0
+%token T_ID                    1
+%token T_INT_CONST             2
+%token T_REAL_CONST            3
+%token T_BOOLEAN_CONST         4
+%token T_PROGRAM               5
+%token T_PROCEDURE             6
+%token T_BEGIN                 7
+%token T_END                   8
+%token T_IF                    9
 %token T_THEN                 10
 %token T_ELSE                 11
 %token T_WHILE                12
@@ -73,6 +67,8 @@ extern int yyerror(char*);
 %token T_GEQ                  47
 %token T_FOR                  48
 %token T_TO                   49
+
+/* Non-token tokens */
 %token T_REWIND_ONE          254
 %token T_INVALID             256
 
@@ -80,12 +76,23 @@ extern int yyerror(char*);
 Notation: opt_XXX: [ XXX ]
           star_XXX: { XXX }
           plus_XXX: XXX { XXX }
+
+force_XXX are always reduced from empty, and are used to execute semantic actions,
+such as allocating memory space;
+
 */
+
 %right T_THEN T_ELSE
 
+%type<id> T_ID variable_access
+%type<int_const> T_INT_CONST T_BOOLEAN_CONST
+%type<real_const> T_REAL_CONST
+
 %%
-input: T_PROGRAM T_ID T_SEMICOLON block_body T_PERIOD
+input: T_PROGRAM T_ID T_SEMICOLON force_initialization block_body T_PERIOD { delete_scope(); } // deallocate last scope;
 ;
+
+force_initialization: { initialize_stack(); } // empty syntactic marker;
 
 block_body: opt_constant_definition_part opt_variable_definition_part star_procedure_definition compound_statement
 ;
@@ -109,9 +116,21 @@ plus_constant_definition: constant_definition
                         | constant_definition plus_constant_definition
 ;
 
-constant_definition: T_ID T_EQ T_INT_CONST T_SEMICOLON 
-                   | T_ID T_EQ T_REAL_CONST T_SEMICOLON
-                   | T_ID T_EQ T_BOOLEAN_CONST T_SEMICOLON
+constant_definition: T_ID T_EQ T_INT_CONST T_SEMICOLON { 
+                                                YYSTYPE u;
+                                                u.int_const = $3;
+                                                const_declare($1, u, T_INT_CONST); 
+                                            } 
+                   | T_ID T_EQ T_REAL_CONST T_SEMICOLON {
+                                                YYSTYPE u;
+                                                u.real_const = $3;
+                                                const_declare($1, u, T_REAL_CONST); 
+                                            } 
+                   | T_ID T_EQ T_BOOLEAN_CONST T_SEMICOLON {
+                                                YYSTYPE u;
+                                                u.int_const = $3;
+                                                const_declare($1, u, T_BOOLEAN_CONST); 
+                                            } 
 ;
 
 variable_definition_part: T_VAR plus_variable_definition
@@ -191,8 +210,10 @@ if_statement: T_IF expression T_THEN statement
 while_statement: T_WHILE expression T_DO statement
 ;
 
-compound_statement: T_BEGIN statement star_comma_statement T_END
+compound_statement: T_BEGIN force_block_start statement star_comma_statement T_END
 ;
+
+force_block_start: { create_scope(); }
 
 star_comma_statement: 
                     | T_SEMICOLON statement star_comma_statement
@@ -249,7 +270,7 @@ factor: constant
       | T_NOT factor
 ;
 
-variable_access: T_ID
+variable_access: T_ID { $$ = $1; }
 ;
 
 constant: T_INT_CONST

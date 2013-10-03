@@ -6,7 +6,7 @@ find_package (BISON2 REQUIRED)
 # MSVC doesn't have c99 support, so we compile the project as if it were C++.
 if (MSVC)
     project (gp-- C CXX)
-    set (CMAKE_CXX_FLAGS "")
+    set (CMAKE_CXX_FLAGS "-Zi")
     set (CMAKE_CXX_FLAGS_DEBUG "-Zi")
 else ()
     project (gp-- C)
@@ -38,8 +38,9 @@ set (HEADERS
     ${src}/lexer/lexer.h
     ${src}/lexer/token.h
     ${src}/parser/parser.h
-    ${src}/symrec/symrec.h
+    ${src}/scope/symrec.h
     ${src}/portability/portability.h
+    ${src}/scope/scope.h
     )
 
 set (SOURCES
@@ -48,6 +49,8 @@ set (SOURCES
     ${src}/state_machine/state_machine.c
     ${src}/lexer/token.c
     ${src}/lexer/lexer.c
+    ${src}/scope/symrec.c
+    ${src}/scope/scope.c
     )
 
 if(MSVC)
@@ -70,12 +73,18 @@ if(MSVC)
                  ${src}/portability/portability.h
                  )
 
-    source_group (headers\\symrec FILES 
-                 ${src}/symrec/symrec.h
+    source_group (headers\\scope FILES 
+                 ${src}/scope/scope.h
+                 ${src}/scope/symrec.h
+                 ${src}/scope/khash.h
                  )
     source_group (sources FILES ${src}/main.c)
     source_group (sources\\state_machine FILES ${src}/state_machine/state_machine.c)
     source_group (sources\\parser FILES ${src}/parser/base_parser.tab.c)
+    source_group (sources\\scope FILES 
+                 ${src}/scope/scope.c
+                 ${src}/scope/symrec.c
+                 )
     source_group (sources\\lexer FILES 
                  ${src}/lexer/token.c
                  ${src}/lexer/lexer.c

@@ -4,10 +4,6 @@
 #include <stdlib.h>
 #include <string.h>
 
-#ifndef MAX_IDENTIFIER_LENGTH
-  #define MAX_IDENTIFIER_LENGTH 16
-#endif
-
 const char* const alpha = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ_";
 const char* const numerics = "1234567890";
 const char* const alphanumerics = "1234567890abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ_";

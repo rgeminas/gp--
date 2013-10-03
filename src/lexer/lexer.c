@@ -22,7 +22,7 @@ FILE* _f = NULL;
 extern int yytype;
 extern YYSTYPE yylval;
 
-char** secondary_tokens = (char**) malloc(sizeof(char*));
+char** secondary_tokens; 
 size_t sec_alloc = 1;
 size_t sec_i = 0;
 
@@ -164,7 +164,7 @@ yylex(void)
             secondary_tokens[sec_i++] = p.token_value;
         }
         // Set secondary token value.
-        yylval.id_secondary = i;
+        yylval.id = i;
     }
     else if(p.type == T_INT_CONST)
     {
