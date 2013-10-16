@@ -9,7 +9,7 @@ struct symrec;
 // "declaration" of hashtable type
 KHASH_MAP_INIT_INT(id, struct symrec*)
 
-typedef enum { CONST, VAR, PROCEDURE, PARAM } species;
+typedef enum { CONST, VAR, PROCEDURE, PARAM, PARAMLIST } species;
 
 // type is one of: T_INTEGER, T_REAL, T_BOOL, 0 (for procedure declarations)
 // parameter list is only there in procedures with non-void signatures
@@ -32,6 +32,8 @@ typedef struct symbol_stack
     struct symbol_stack* previous;
 } symbol_stack;
 
+symrec* copy_symrec(symrec*);
+
 void add_to_scope(symrec*);
 
 void initialize_stack();
@@ -43,4 +45,6 @@ void delete_scope();
 symrec* search_in_current_scope(int id);
 
 void const_declare(int id, YYSTYPE value, int type);
+
+symrec* proc_declare(int id);
 #endif

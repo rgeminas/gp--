@@ -1,8 +1,9 @@
 %{
 
-#include <lexer/lexer.h>
-#include <lexer/token.h>
-#include <scope/symrec.h>
+#include "lexer/lexer.h"
+#include "lexer/token.h"
+#include "scope/symrec.h"
+#include "scope/khash.h"
 
 extern int yylex(void);
 extern int yyerror(char*);
@@ -14,7 +15,7 @@ extern int yyerror(char*);
     int int_const;
     float real_const;
     size_t id;
-    struct SYMREC* record;
+    struct symrec* record;
 }
 
 %token T_EOF                   0
@@ -84,6 +85,7 @@ such as allocating memory space;
 
 %right T_THEN T_ELSE
 
+%type<record> formal_parameter_list opt_brc_formal_parameter_list_brc procedure_block
 %type<id> T_ID variable_access
 %type<int_const> T_INT_CONST T_BOOLEAN_CONST
 %type<real_const> T_REAL_CONST
@@ -116,21 +118,24 @@ plus_constant_definition: constant_definition
                         | constant_definition plus_constant_definition
 ;
 
-constant_definition: T_ID T_EQ T_INT_CONST T_SEMICOLON { 
-                                                YYSTYPE u;
-                                                u.int_const = $3;
-                                                const_declare($1, u, T_INT_CONST); 
-                                            } 
-                   | T_ID T_EQ T_REAL_CONST T_SEMICOLON {
-                                                YYSTYPE u;
-                                                u.real_const = $3;
-                                                const_declare($1, u, T_REAL_CONST); 
-                                            } 
-                   | T_ID T_EQ T_BOOLEAN_CONST T_SEMICOLON {
-                                                YYSTYPE u;
-                                                u.int_const = $3;
-                                                const_declare($1, u, T_BOOLEAN_CONST); 
-                                            } 
+constant_definition: T_ID T_EQ T_INT_CONST T_SEMICOLON 
+{ 
+    YYSTYPE u;
+    u.int_const = $3;
+    const_declare($1, u, T_INT_CONST); 
+} 
+                   | T_ID T_EQ T_REAL_CONST T_SEMICOLON 
+{
+    YYSTYPE u;
+    u.real_const = $3;
+    const_declare($1, u, T_REAL_CONST); 
+} 
+                   | T_ID T_EQ T_BOOLEAN_CONST T_SEMICOLON 
+{
+    YYSTYPE u;
+    u.int_const = $3;
+    const_declare($1, u, T_BOOLEAN_CONST); 
+} 
 ;
 
 variable_definition_part: T_VAR plus_variable_definition
@@ -155,17 +160,56 @@ type: T_INTEGER
     | T_BOOLEAN
 ;
 
-procedure_definition: T_PROCEDURE T_ID procedure_block T_SEMICOLON
-;
+procedure_definition: procedure_block block_body T_SEMICOLON 
+{ 
+    delete_scope(); 
+};
 
-procedure_block: opt_brc_formal_parameter_list_brc T_SEMICOLON block_body
-;
+procedure_block: T_PROCEDURE T_ID opt_brc_formal_parameter_list_brc T_SEMICOLON 
+{
+    $$ = proc_declare($2);
+    khash_t(id)* hp = $3->parameter_list;
+    $$->parameter_list = $3->parameter_list;
+
+    free($3);  // the parameter list is still going to be there, don't worry
+
+    create_scope();
+
+    // add stuff from parameter_list to the newly-created scope so the underlying function can access it
+    for (khiter_t kp = kh_begin(hp); kp != kh_end(hp); ++kp)
+    {
+        if(kh_exist(hp, kp))
+        {
+            add_to_scope(copy_symrec(kh_value(hp, kp)));
+        }
+    }
+    
+};
 
 opt_brc_formal_parameter_list_brc: 
+{
+    $$ = malloc(sizeof(symrec));
+    $$->parameter_list = NULL;
+}
                                  | T_LBRACKET formal_parameter_list T_RBRACKET
+{
+   // add to scope AND add to the list in opt_brc...
+}
 ;
 
 formal_parameter_list: parameter_definition star_smc_parameter_definition
+{
+    if($$ == NULL)
+    {
+        $$ = (symrec*) malloc(sizeof(symrec));
+        $$->id = -1;
+        $$->parameter_list = kh_init(id);
+        $$->spec = PARAMLIST;
+        $$->type = 0; 
+        // do not add to scope yet
+    }
+    // MERGE parameter_definition into star_smc_parameter_definition and copy into formal_parameter_list
+}
 ;
 
 star_smc_parameter_definition: 

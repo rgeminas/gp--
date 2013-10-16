@@ -1,6 +1,7 @@
 #include "scope/symrec.h"
 #include "parser/base_parser.h"
 #include <stdlib.h>
+#include <stdio.h>
 
 symbol_stack* scope_stack;
 
@@ -27,7 +28,7 @@ void add_to_scope(symrec* record)
     // put id in hashtable
     k = kh_put(id, h, record->id, &return_value);
     symrec* val;
-    // associate id to record
+    // associate id to record. It looks weird, but it expands to an lvalue
     kh_value(h, k) = record;
 }
 
@@ -41,7 +42,20 @@ void delete_scope()
     {
 		if (kh_exist(h, k)) 
         {
+            khash_t(id)* hp = kh_value(h, k)->parameter_list;
+            // Free the symrecs in the parameter list
+            for (khiter_t kp = kh_begin(hp); kp != kh_end(hp); ++kp)
+            {
+                if(kh_exist(hp, kp))
+                {
+                    // Parameter symrecs can't have more parameters. If that
+                    // weren't the case we'd need to free recursively.
+                    free(kh_value(hp, kp));
+                }
+            }
+            // Free the parameter list itself
             free(kh_value(h, k)->parameter_list); 
+            // Free the symrec
             free(kh_value(h, k));
         }
     }
@@ -65,14 +79,33 @@ symrec* search_in_current_scope(int id)
     }
 }
 
-void begin_block(void)
+symrec* search_in_any_scope(int id)
 {
-    create_scope();
+    khiter_t k;
+    symbol_stack* stack = scope_stack;
+    while(stack != NULL)
+    {
+        khash_t(id)* h = stack->kh_table_top;
+        k = kh_get(id, h, id);
+        // If there is no k 
+        if (k != kh_end(h))
+        {
+            return kh_val(h, k);
+        }
+        stack = stack->previous;
+    }
+    return NULL;
 }
 
-void end_block(void)
+symrec* proc_declare(int id)
 {
-    delete_scope();
+    symrec* s = (symrec*) malloc(sizeof(symrec));
+    s->id = id;
+    s->parameter_list = NULL;
+    s->spec = PROCEDURE;
+    s->type = T_INVALID; // procs return no type, so they can't be rvalues.
+    add_to_scope(s);
+    return s;
 }
 
 void const_declare(int id, YYSTYPE value, int type)
@@ -93,17 +126,55 @@ void const_declare(int id, YYSTYPE value, int type)
     {
         s->type = T_BOOLEAN;
     }
-    add_to_scope(s);    
+    add_to_scope(s);
+    
 }
 
-// returns 0 if id is not an lvalue
+//
+// BIOHAZARD: This copies pointers to the parameter hashtables. This isn't supposed to be
+// a problem since we never copy parameter symrecs and then delete them.
+//
+symrec* copy_symrec(symrec* base)
+{
+    symrec* s = (symrec*) malloc(sizeof(symrec));
+    memcpy(s, base, sizeof(symrec));
+    return s;
+}
+
+// returns 0 if id is not an lvalue (only vars are lvalues)
 int check_lvalue(int id)
 {
     return 0;
 }
 
-// returns 0 if id is not an rvalue
+// returns 0 if id is not an rvalue 
 int check_rvalue(int id)
 {
     return 0;
+}
+
+khash_t(id)* merge_hashes(khash_t(id)* h1, khash_t(id)* h2)
+{
+    int* ret;
+    khash_t(id)* h = kh_init(id);
+    for (khiter_t k = kh_begin(h1); k != kh_end(h1); ++k)
+    {
+		if (kh_exist(h1, k))
+        {
+            symrec* s = kh_value(h1, k);
+            // Free the symrecs in the parameter list
+            kh_put(id, h, k, ret);
+            if(ret == 0) return NULL;
+        }
+    }
+    for (khiter_t k = kh_begin(h2); k != kh_end(h2); ++k)
+    {
+		if (kh_exist(h2, k))
+        {
+            symrec* s = kh_value(h2, k);
+            // Free the symrecs in the parameter list
+        }
+    }
+    return h;
+
 }

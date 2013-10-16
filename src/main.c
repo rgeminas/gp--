@@ -1,6 +1,8 @@
 #include "lexer/lexer.h"
 #include "parser/base_parser.h"
 #include "portability/portability.h"
+#include "lexer/token.h"
+#include "scope/symrec.h"
 
 // Bison-defined parsing function.
 extern int yyparse(void);
@@ -15,11 +17,22 @@ extern STATE_MACHINE* _wssm;
 // File to be parsed.
 extern FILE* _f;
 
+extern char** secondary_tokens;
+
 extern int yydebug;
 
 int
 main(int argc, char** argv)
 {
+    //tests start here
+    /*
+    initialize_stack();
+    symrec s = {CONST, 1, T_ID, NULL};
+    add_to_scope(&s);
+    symrec* s2 = search_in_current_scope(1);
+    */
+    //tests end here
+
     yydebug = 0;
     if(argc == 1)
     {
@@ -59,10 +72,16 @@ main(int argc, char** argv)
             }
         }
     }
-    
-    _sm = make_full_tokenizer(tokens, 22, keywords, 27);
-    _wssm = make_nontoken_skipper(); 
 
+#   if !_MSC_VER
+        _sm = make_full_tokenizer(tokens, sizeof(tokens)/sizeof(*tokens), keywords, sizeof(keywords)/sizeof(*keywords));
+#   else
+        _sm = make_full_tokenizer(tokens, 22, keywords, 26);
+#   endif
+
+    _wssm = make_nontoken_skipper(); 
+    secondary_tokens = (char**) malloc(sizeof(char*));
+    
     if(!yyparse())
     {
         puts("Parsing successful! Wheeeeee!");
@@ -71,5 +90,6 @@ main(int argc, char** argv)
     {
         puts("Parsing unsuccessful.");
     }
+    fclose(_f);
     return 0;
 }
