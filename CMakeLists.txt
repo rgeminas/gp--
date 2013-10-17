@@ -6,8 +6,8 @@ find_package (BISON2 REQUIRED)
 # MSVC doesn't have c99 support, so we compile the project as if it were C++.
 if (MSVC)
     project (gp-- C CXX)
-    set (CMAKE_CXX_FLAGS "-Zi")
-    set (CMAKE_CXX_FLAGS_DEBUG "-Zi")
+    set (CMAKE_CXX_FLAGS CMAKE_C_FLAGS)
+    set (CMAKE_CXX_FLAGS_DEBUG CMAKE_C_FLAGS_DEBUG)
 else ()
     project (gp-- C)
     set (CMAKE_C_FLAGS "-std=c99")
@@ -40,7 +40,6 @@ set (HEADERS
     ${src}/parser/parser.h
     ${src}/scope/symrec.h
     ${src}/portability/portability.h
-    ${src}/scope/scope.h
     )
 
 set (SOURCES
@@ -50,7 +49,6 @@ set (SOURCES
     ${src}/lexer/token.c
     ${src}/lexer/lexer.c
     ${src}/scope/symrec.c
-    ${src}/scope/scope.c
     )
 
 if(MSVC)
@@ -74,7 +72,6 @@ if(MSVC)
                  )
 
     source_group (headers\\scope FILES 
-                 ${src}/scope/scope.h
                  ${src}/scope/symrec.h
                  ${src}/scope/khash.h
                  )
@@ -82,7 +79,6 @@ if(MSVC)
     source_group (sources\\state_machine FILES ${src}/state_machine/state_machine.c)
     source_group (sources\\parser FILES ${src}/parser/base_parser.tab.c)
     source_group (sources\\scope FILES 
-                 ${src}/scope/scope.c
                  ${src}/scope/symrec.c
                  )
     source_group (sources\\lexer FILES 
