@@ -342,6 +342,14 @@ statement: assignment_statement
 ;
 
 assignment_statement: variable_access T_ASSIGN expression
+{
+    symrec* s = search_in_any_scope($1);
+    if (s->spec != VAR && s->spec != PARAM)
+    {
+        fprintf(stderr, "ERROR: Assignment to non-lvalue '%s'.\n", secondary_tokens[$1]);
+        YYERROR;
+    }
+}
 ;
 
 procedure_statement: T_ID opt_brc_actual_parameter_list_brc
