@@ -56,15 +56,23 @@ delete_scope();
 symrec* 
 search_in_current_scope(int id);
 
-void 
+symrec* 
+search_in_any_scope(int id);
+
+symrec*
 const_declare(int id, YYSTYPE value, int type);
 
-void 
+symrec*
 var_declare(int id, int type);
 
 symrec* 
 proc_declare(int id);
 
+//
+// If this were C++, this would be called
+//    operator +=(...)
+// Fortunately, this isn't C++.
+//
 khash_t(id)* 
 operator_plus_assign(khash_t(id)* h1,
                      khash_t(id)* h2,

@@ -3,17 +3,20 @@
 #include <stdlib.h>
 #include <stdio.h>
 
+extern char** secondary_tokens;
+
 symbol_stack* scope_stack;
 
 void
 print_symrec(symrec* s)
 {
-    fprintf(stderr, "sp: %d // id: %d // type: %d\n", s->spec, s->id, s->type);
+    fprintf(stderr, "sp: %d // id: %s // type: %d\n", s->spec, secondary_tokens[s->id], s->type);
 }
 
 void
 print_table()
 {
+    fprintf(stderr, "----BEGIN TABLE----\n");
     symbol_stack* stack = scope_stack;
     while(stack != NULL)
     {
@@ -47,7 +50,7 @@ create_scope()
     scope_stack->previous = curr;
 }
 
-void 
+void
 add_to_scope(symrec* record)
 {
     int return_value;
@@ -72,6 +75,8 @@ delete_scope()
 		if (kh_exist(h, k)) 
         {
             khash_t(id)* hp = kh_value(h, k)->parameter_list;
+            // You can't iterate over a null parameter list.
+            if (hp == NULL) continue;
             // Free the symrecs in the parameter list
             for (khiter_t kp = kh_begin(hp); kp != kh_end(hp); ++kp)
             {
@@ -131,6 +136,8 @@ search_in_any_scope(int id)
 symrec* 
 proc_declare(int id)
 {
+    if (search_in_current_scope(id) != NULL)
+        return NULL;
     symrec* s = (symrec*) malloc(sizeof(symrec));
     s->id = id;
     s->parameter_list = NULL;
@@ -140,11 +147,13 @@ proc_declare(int id)
     return s;
 }
 
-void 
+symrec* 
 const_declare(int id, 
               YYSTYPE value, 
               int type)
 {
+    if (search_in_current_scope(id) != NULL)
+        return NULL;
     symrec* s = (symrec*) malloc(sizeof(symrec));
     s->id = id;
     s->parameter_list = NULL;
@@ -162,17 +171,21 @@ const_declare(int id,
         s->type = T_BOOLEAN;
     }
     add_to_scope(s);
+    return s;
 }
 
-void 
+symrec*
 var_declare(int id, int type)
 {
+    if (search_in_current_scope(id) != NULL)
+        return NULL;
     symrec* s = (symrec*) malloc(sizeof(symrec));
     s->id = id;
     s->parameter_list = NULL;
     s->spec = VAR;
     s->type = type;
     add_to_scope(s);
+    return s;
 }
 //
 // BIOHAZARD: This copies pointers to the parameter hashtables. This isn't supposed to be
@@ -206,7 +219,7 @@ operator_plus_assign(khash_t(id)* h1,
                      int* ret)
 {
     int voidret;
-    *ret = 1;
+    *ret = -1;
     for (khiter_t k = kh_begin(h2); k != kh_end(h2); ++k)
     {
 		if (kh_exist(h2, k))
@@ -217,8 +230,8 @@ operator_plus_assign(khash_t(id)* h1,
             khiter_t k1 = kh_get(id, h1, key);
             if (k1 != kh_end(h1))
             {
-                // Key already present! Overwrite and notify fuckfuckfuckfuck
-                *ret = 0;
+                // Key already present! Overwrite and notify who that fucker is 
+                *ret = kh_value(h1, k1)->id;
             }
             k1 = kh_put(id, h1, key, &voidret);
             kh_value(h1, k1) = s;

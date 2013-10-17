@@ -8,10 +8,31 @@ program HelloWorld;
     var
         e, f, g : (* yes, they are integers *) integer;
         h, i : real;
-    procedure ProcedureWithParams(a, b, c : integer; d, e, f : real);
+
+    procedure ProcedureWithNoParams ;
+        const
+            a = 3;
+            b = 2.;
+            c = 3.4;
+            d = true;
+        var
+            e, f, g : integer;
+            h, i : real;
     begin
-        f := f or a
+        while e mod 3 <> 2 do
+        begin
+            e := a + 2
+        end;
+    end;
+    
+    procedure ProcedureWithParams(a, b, c : integer; d, e, f : real);
+        const
+            q = 3;
+        var
+            g: integer;
+    begin
+        g := f or a
     end;
 begin
-    x:=3
+    h:=3
 end.

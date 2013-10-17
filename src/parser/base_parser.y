@@ -7,8 +7,10 @@
 
 extern int yylex(void);
 extern int yyerror(char*);
+extern char** secondary_tokens;
 
 %}
+%no_lines
 
 %union 
 {
@@ -85,8 +87,8 @@ such as allocating memory space;
 
 %right T_THEN T_ELSE
 
-%type<record> formal_parameter_list opt_brc_formal_parameter_list_brc procedure_block
-%type<id> T_ID variable_access
+%type<record> formal_parameter_list opt_brc_formal_parameter_list_brc procedure_block variable_group star_comma_id parameter_definition star_smc_parameter_definition
+%type<id> T_ID variable_access type
 %type<int_const> T_INT_CONST T_BOOLEAN_CONST
 %type<real_const> T_REAL_CONST
 
@@ -122,19 +124,31 @@ constant_definition: T_ID T_EQ T_INT_CONST T_SEMICOLON
 { 
     YYSTYPE u;
     u.int_const = $3;
-    const_declare($1, u, T_INT_CONST); 
+    if (const_declare($1, u, T_INT_CONST) == NULL) 
+    {
+        fprintf(stderr, "Redefinition of symbol '%s'.\n", secondary_tokens[$1]);
+        YYERROR; 
+    }
 } 
                    | T_ID T_EQ T_REAL_CONST T_SEMICOLON 
 {
     YYSTYPE u;
     u.real_const = $3;
-    const_declare($1, u, T_REAL_CONST); 
+    if (const_declare($1, u, T_REAL_CONST) == NULL) 
+    {
+        fprintf(stderr, "Redefinition of symbol '%s'.\n", secondary_tokens[$1]);
+        YYERROR; 
+    }
 } 
                    | T_ID T_EQ T_BOOLEAN_CONST T_SEMICOLON 
 {
     YYSTYPE u;
     u.int_const = $3;
-    const_declare($1, u, T_BOOLEAN_CONST); 
+    if (const_declare($1, u, T_BOOLEAN_CONST) == NULL) 
+    {
+        fprintf(stderr, "Redefinition of symbol '%s'.\n", secondary_tokens[$1]);
+        YYERROR; 
+    }
 } 
 ;
 
@@ -146,18 +160,84 @@ plus_variable_definition: variable_definition
 ;
 
 variable_definition: variable_group T_SEMICOLON
+{
+    for (khiter_t k = kh_begin($1->parameter_list); k != kh_end($1->parameter_list); ++k)
+    {
+        if(kh_exist($1->parameter_list, k))
+        {
+            symrec* s = kh_value($1->parameter_list, k);
+            s->spec = VAR;
+            add_to_scope(s);
+        } 
+    }
+    free($1->parameter_list);
+    free($1);
+}
 ;
 
 variable_group: T_ID star_comma_id T_COLON type
+{
+    int ret;
+    $$ = $2; 
+    khiter_t k = kh_get(id, $$->parameter_list, $1);
+	if(k == kh_end($$->parameter_list))
+    {
+        k = kh_put(id, $$->parameter_list, $1, &ret);
+        // Create symrec for the parameter!
+        symrec* s = (symrec*) malloc(sizeof(symrec));
+        s->spec = PARAM;
+        s->id = $1;
+        s->parameter_list = NULL;
+        kh_value($$->parameter_list, k) = s;
+        // Iterate over symrecs, set type.
+        for (k = kh_begin($$->parameter_list); k != kh_end($$->parameter_list); ++k)
+        {
+            if (kh_exist($$->parameter_list, k))
+            {
+                kh_value($$->parameter_list, k)->type = $4;
+            }
+        }
+    }
+    else
+    {
+        fprintf(stderr, "Multiple declarations of the same symbol '%s'.\n", secondary_tokens[$1]);
+        YYERROR;
+    }
+}
 ;
 
 star_comma_id: 
+{
+    $$ = (symrec*) malloc(sizeof(symrec));
+    $$->parameter_list = kh_init(id);
+}
              | T_COMMA T_ID star_comma_id
+{
+    int ret;
+    $$ = $3; 
+    khiter_t k = kh_get(id, $$->parameter_list, $2);
+	if(k == kh_end($$->parameter_list))
+    {
+        k = kh_put(id, $$->parameter_list, $2, &ret);
+        // Create symrec for the parameter!
+        symrec* s = (symrec*) malloc(sizeof(symrec));
+        s->spec = PARAM;
+        s->id = $2;
+        s->parameter_list = NULL;
+        kh_value($$->parameter_list, k) = s;
+        // Type is still undefined!
+    }
+    else
+    {
+        fprintf(stderr, "Multiple declarations of the same symbol '%s'.\n", secondary_tokens[$2]);
+        YYERROR;
+    }
+}
 ;
 
-type: T_INTEGER 
-    | T_REAL 
-    | T_BOOLEAN
+type: T_INTEGER { $$ = T_INTEGER; }
+    | T_REAL { $$ = T_REAL; }
+    | T_BOOLEAN { $$ = T_BOOLEAN; }
 ;
 
 procedure_definition: procedure_block block_body T_SEMICOLON 
@@ -169,6 +249,7 @@ procedure_block: T_PROCEDURE T_ID opt_brc_formal_parameter_list_brc T_SEMICOLON
 {
     $$ = proc_declare($2);
     khash_t(id)* hp = $3->parameter_list;
+    // Copy parameter list to the actual symrec
     $$->parameter_list = $3->parameter_list;
 
     free($3);  // the parameter list is still going to be there, don't worry
@@ -188,35 +269,68 @@ procedure_block: T_PROCEDURE T_ID opt_brc_formal_parameter_list_brc T_SEMICOLON
 
 opt_brc_formal_parameter_list_brc: 
 {
-    $$ = malloc(sizeof(symrec));
-    $$->parameter_list = NULL;
+    $$ = (symrec*) malloc(sizeof(symrec));
+    $$->parameter_list = kh_init(id);
 }
                                  | T_LBRACKET formal_parameter_list T_RBRACKET
 {
-   // add to scope AND add to the list in opt_brc...
+    $$ = (symrec*) malloc(sizeof(symrec));
+    $$->parameter_list = $2->parameter_list;
+    free($2);
 }
 ;
 
 formal_parameter_list: parameter_definition star_smc_parameter_definition
 {
-    if($$ == NULL)
-    {
-        $$ = (symrec*) malloc(sizeof(symrec));
-        $$->id = -1;
-        $$->parameter_list = kh_init(id);
-        $$->spec = PARAMLIST;
-        $$->type = 0; 
-        // do not add to scope yet
-    }
+    $$ = (symrec*) malloc(sizeof(symrec));
+    $$->id = -1;
+    $$->spec = PARAMLIST;
+    $$->type = 0; 
+    // do not add to scope yet
     // MERGE parameter_definition into star_smc_parameter_definition and copy into formal_parameter_list
+    int ret;
+    $$->parameter_list = operator_plus_assign($1->parameter_list, $2->parameter_list, &ret);
+    free($2->parameter_list);
+    if (!ret)
+    {
+        fprintf(stderr, "\nERROR: Definition of multiple variables with the same identifier.\n");
+    }
+    if (!ret) YYERROR;
 }
 ;
 
-star_smc_parameter_definition: 
+star_smc_parameter_definition:
+{
+
+    $$ = (symrec*) malloc(sizeof(symrec));
+    $$->id = -1;
+    $$->spec = PARAMLIST;
+    $$->type = 0; 
+    $$->parameter_list = kh_init(id);
+} 
                              | T_SEMICOLON parameter_definition star_smc_parameter_definition
+{
+    $$ = (symrec*) malloc(sizeof(symrec));
+    $$->id = -1;
+    $$->spec = PARAMLIST;
+    $$->type = 0; 
+    // do not add to scope yet
+    // MERGE parameter_definition into star_smc_parameter_definition and copy into formal_parameter_list
+    int ret;
+    $$->parameter_list = operator_plus_assign($2->parameter_list, $3->parameter_list, &ret);
+    if (!ret)
+    {
+        fprintf(stderr, "\nERROR: Multiple parameters with the same name in the definition of a procedure.\n");
+    }
+    free($3->parameter_list);
+    if (!ret) YYERROR;
+}
 ;
 
 parameter_definition: variable_group
+{
+    $$ = $1;
+}
 ;
 
 statement: assignment_statement
@@ -254,10 +368,8 @@ if_statement: T_IF expression T_THEN statement
 while_statement: T_WHILE expression T_DO statement
 ;
 
-compound_statement: T_BEGIN force_block_start statement star_comma_statement T_END
+compound_statement: T_BEGIN statement star_comma_statement T_END
 ;
-
-force_block_start: { create_scope(); }
 
 star_comma_statement: 
                     | T_SEMICOLON statement star_comma_statement
@@ -314,7 +426,16 @@ factor: constant
       | T_NOT factor
 ;
 
-variable_access: T_ID { $$ = $1; }
+variable_access: T_ID 
+{ 
+    $$ = $1; 
+    symrec* s = search_in_any_scope($1);
+    if (s == NULL)
+    {
+        fprintf(stderr, "Use of undeclared identifier '%s'.\n", secondary_tokens[$1]);
+        YYERROR;
+    }
+}
 ;
 
 constant: T_INT_CONST
