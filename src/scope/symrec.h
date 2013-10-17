@@ -18,7 +18,7 @@ typedef struct symrec
 {
     species spec; 
     size_t id; // 2ndary token
-    int type;
+    int type; // Among T_BOOLEAN, T_INTEGER, T_REAL. Bite me.
     YYSTYPE value; // This is never going to be a symrec
     khash_t(id)* parameter_list;
 } symrec;
@@ -32,19 +32,41 @@ typedef struct symbol_stack
     struct symbol_stack* previous;
 } symbol_stack;
 
-symrec* copy_symrec(symrec*);
+void
+print_symrec(symrec* s);
 
-void add_to_scope(symrec*);
+void
+print_table();
 
-void initialize_stack();
+symrec* 
+copy_symrec(symrec*);
 
-void create_scope();
+void 
+add_to_scope(symrec*);
 
-void delete_scope();
+void 
+initialize_stack();
 
-symrec* search_in_current_scope(int id);
+void 
+create_scope();
 
-void const_declare(int id, YYSTYPE value, int type);
+void 
+delete_scope();
 
-symrec* proc_declare(int id);
+symrec* 
+search_in_current_scope(int id);
+
+void 
+const_declare(int id, YYSTYPE value, int type);
+
+void 
+var_declare(int id, int type);
+
+symrec* 
+proc_declare(int id);
+
+khash_t(id)* 
+operator_plus_assign(khash_t(id)* h1,
+                     khash_t(id)* h2,
+                     int* ret);
 #endif

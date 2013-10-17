@@ -99,9 +99,9 @@ else ()
 endif ()
 
 add_executable (gp-- 
-               ${BISON_base_parser_OUTPUTS}
                ${SOURCES} 
                ${HEADERS} 
+               ${BISON_base_parser_OUTPUTS}
                )
 
 if (MSVC)

@@ -3,7 +3,11 @@
 #include <string.h>
 #include <ctype.h>
 #ifndef _MSC_VER
-  #include <strings.h>
+    #include <strings.h>
+#endif
+
+#ifndef __NODEBUG
+    #include "scope/symrec.h"
 #endif
 
 #include "lexer/lexer.h"
@@ -137,6 +141,9 @@ next_token_file(FILE* file,
 int 
 yylex(void)
 {
+    #ifndef __NODEBUG
+        print_table();
+    #endif
     if(_f == NULL) return T_INVALID;
     TOKEN p = next_token_file(_f, _sm, _wssm);
     if(p.type == T_EOF)

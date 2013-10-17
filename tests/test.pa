@@ -4,6 +4,14 @@ program HelloWorld;
         b = 2.;
         c = 3.4;
         d = true;
+        
+    var
+        e, f, g : (* yes, they are integers *) integer;
+        h, i : real;
+    procedure ProcedureWithParams(a, b, c : integer; d, e, f : real);
+    begin
+        f := f or a
+    end;
 begin
     x:=3
 end.
