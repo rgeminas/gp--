@@ -37,13 +37,13 @@ skip_nontokens_file(FILE* file,
     long int penultimate_position = 0;
     long int last_position = ftell(file);
     // Do transitions until execute_transition returns an error (no valid transition)
-    while(1)
+    while (1)
     {
         
         int c = tolower(fgetc(file));
-        if(c == EOF)
+        if (c == EOF)
         {
-            if(sm->current_state->return_token == T_INVALID)
+            if (sm->current_state->return_token == T_INVALID)
             {
                 TOKEN t = {T_INVALID, NULL};
                 fprintf(stderr, "Syntax error on file position %d.\n", last_position);
@@ -55,7 +55,7 @@ skip_nontokens_file(FILE* file,
                 return t;
             }
         }
-        if(execute_transition(sm, c))
+        if (execute_transition(sm, c))
         {
             // If execute_transition fails, we went through more characters than needed.
             // Go back one position in the file, and return the code of the current state.
@@ -67,11 +67,11 @@ skip_nontokens_file(FILE* file,
     }
     // Set sm back to its initial state so it can skip more whitespace later.
     int ret = sm->current_state->return_token;
-    if(ret == T_INVALID)
+    if (ret == T_INVALID)
     {
         fprintf(stderr, "Syntax error on file position %d.\n", last_position);
     }
-    if(ret == T_REWIND_ONE)
+    if (ret == T_REWIND_ONE)
     {
         fseek(file, penultimate_position, SEEK_SET);
     }
@@ -86,7 +86,7 @@ next_token_file(FILE* file,
                 STATE_MACHINE* wsssm)
 {
     TOKEN return_skip = skip_nontokens_file(file, wsssm);
-    if(return_skip.type == T_INVALID)
+    if (return_skip.type == T_INVALID)
     {
         return return_skip;
     }
@@ -95,7 +95,7 @@ next_token_file(FILE* file,
     size_t i = 0;
 
     int c = tolower(fgetc(file));
-    if(c == EOF)
+    if (c == EOF)
     {
         TOKEN t = {T_EOF, NULL};
         return t;
@@ -104,9 +104,9 @@ next_token_file(FILE* file,
     long int last_position = ftell(file);
     // Do transitions until execute_transition returns an error (no valid transition)
     // This assumes that your file ends on a newline.
-    while(1) 
+    while (1) 
     {
-        if(execute_transition(sm, c))
+        if (execute_transition(sm, c))
         {
             // If execute_transition fails, we went through more characters than needed
             // Go back in the file, and return the code of the current state.
@@ -115,7 +115,7 @@ next_token_file(FILE* file,
             break;
         }
 
-        if(i + 1 >= allocated)
+        if (i + 1 >= allocated)
         {
             allocated = allocated << 1;
             buffer = (char*) realloc(buffer, allocated * sizeof(char));
@@ -129,7 +129,7 @@ next_token_file(FILE* file,
     buffer[++i] = 0;
     // Set sm back to its initial state so it can tokenize another string.
     int ret = sm->current_state->return_token;
-    if(ret == T_INVALID)
+    if (ret == T_INVALID)
     {
         fprintf(stderr, "Syntax error on file position %d.\n", last_position);
     }
@@ -144,46 +144,46 @@ yylex(void)
     #ifndef __NODEBUG
         print_table();
     #endif
-    if(_f == NULL) return T_INVALID;
+    if (_f == NULL) return T_INVALID;
     TOKEN p = next_token_file(_f, _sm, _wssm);
-    if(p.type == T_EOF)
+    if (p.type == T_EOF)
     {
         return 0;
     }
-    if(p.type == T_ID)
+    if (p.type == T_ID)
     {
-        if(sec_alloc <= sec_i)
+        if (sec_alloc <= sec_i)
         {
             sec_alloc = sec_alloc << 1;
             secondary_tokens = (char**) realloc(secondary_tokens, sec_alloc * sizeof(char*));
         }
         size_t i;
-        for(i=0; i<sec_i; ++i)
+        for (i=0; i<sec_i; ++i)
         {
-            if(!stricmp(secondary_tokens[i], p.token_value))
+            if (!stricmp(secondary_tokens[i], p.token_value))
             {
                 break;
             }
         }
         // If we went through the full loop without a match, add a new secondary token.
-        if(i == sec_i)
+        if (i == sec_i)
         {
             secondary_tokens[sec_i++] = p.token_value;
         }
         // Set secondary token value.
         yylval.id = i;
     }
-    else if(p.type == T_INT_CONST)
+    else if (p.type == T_INT_CONST)
     {
         yylval.int_const = atoi((char*) p.token_value);
     }
-    else if(p.type == T_REAL_CONST)
+    else if (p.type == T_REAL_CONST)
     {
         yylval.real_const = atof((char*) p.token_value);
     }
-    else if(p.type == T_BOOLEAN_CONST)
+    else if (p.type == T_BOOLEAN_CONST)
     {
-        if(stricmp((char*) p.token_value, "true"))
+        if (stricmp((char*) p.token_value, "true"))
         {
             yylval.int_const = 1;
         }

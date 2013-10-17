@@ -34,16 +34,16 @@ main(int argc, char** argv)
     //tests end here
 
     yydebug = 0;
-    if(argc == 1)
+    if (argc == 1)
     {
         fprintf(stderr, "Usage: gp-- [--debug] [--help] source_file.pa\n");
         return 1;
     }
     else
     {
-        for(int i=1; i < argc; i++)
+        for (int i=1; i < argc; i++)
         {
-            if(!strcmp(argv[i], "--help"))
+            if (!strcmp(argv[i], "--help"))
             {
                 puts("Usage: gp-- [--debug] [--help] source_file.pa\n");
                 puts("Options:");
@@ -51,11 +51,11 @@ main(int argc, char** argv)
                 puts("--debug: Show bison automaton trace.");
                 return 0;
             }
-            else if(!strcmp(argv[i], "--debug"))
+            else if (!strcmp(argv[i], "--debug"))
             {
                 yydebug = 1;
             }
-            else if(!strncmp(argv[i], "-", 1))
+            else if (!strncmp(argv[i], "-", 1))
             {
                 printf("Unknown option %s.\n", argv[i]);
                 return 1;
@@ -63,7 +63,7 @@ main(int argc, char** argv)
             else
             {
                 FILE* f = fopen(argv[i], "r");
-                if(f == NULL)
+                if (f == NULL)
                 {
                     printf("Could not open file: %s.\n", argv[i]);
                     return 1;
@@ -82,7 +82,7 @@ main(int argc, char** argv)
     _wssm = make_nontoken_skipper(); 
     secondary_tokens = (char**) malloc(sizeof(char*));
     
-    if(!yyparse())
+    if (!yyparse())
     {
         puts("Parsing successful! Wheeeeee!");
     }

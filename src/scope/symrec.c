@@ -18,12 +18,12 @@ print_table()
 {
     fprintf(stderr, "----BEGIN TABLE----\n");
     symbol_stack* stack = scope_stack;
-    while(stack != NULL)
+    while (stack != NULL)
     {
         khash_t(id)* h = stack->kh_table_top;
         for (khiter_t k = kh_begin(h); k != kh_end(h); ++k)
         {
-            if(kh_exist(h, k))
+            if (kh_exist(h, k))
             {
                 print_symrec(kh_value(h, k));
             }
@@ -80,7 +80,7 @@ delete_scope()
             // Free the symrecs in the parameter list
             for (khiter_t kp = kh_begin(hp); kp != kh_end(hp); ++kp)
             {
-                if(kh_exist(hp, kp))
+                if (kh_exist(hp, kp))
                 {
                     // Parameter symrecs can't have more parameters. If that
                     // weren't the case we'd need to free recursively.
@@ -119,7 +119,7 @@ search_in_any_scope(int id)
 {
     khiter_t k;
     symbol_stack* stack = scope_stack;
-    while(stack != NULL)
+    while (stack != NULL)
     {
         khash_t(id)* h = stack->kh_table_top;
         k = kh_get(id, h, id);
@@ -158,15 +158,15 @@ const_declare(int id,
     s->id = id;
     s->parameter_list = NULL;
     s->spec = CONST;
-    if(type == T_INT_CONST)
+    if (type == T_INT_CONST)
     {
         s->type = T_INTEGER;
     }
-    else if(type == T_REAL_CONST)
+    else if (type == T_REAL_CONST)
     {
         s->type = T_REAL;
     }
-    else if(type == T_BOOLEAN_CONST)
+    else if (type == T_BOOLEAN_CONST)
     {
         s->type = T_BOOLEAN;
     }
@@ -253,7 +253,7 @@ merge_hashes(khash_t(id)* h1,
             symrec* s = kh_value(h1, k);
             // Free the symrecs in the parameter list
             kh_put(id, h, k, ret);
-            if(ret == 0) return NULL;
+            if (ret == 0) return NULL;
         }
     }
     for (khiter_t k = kh_begin(h2); k != kh_end(h2); ++k)

@@ -3,13 +3,13 @@
 
 void
 add_transition(STATE* first,
-          STATE* second)
+               STATE* second)
 {
     // We increase the buffer size that we want.
     ++first->num_transitions;
 
     // If we don't have any memory, give us some.
-    if(first->_allocated_mem == 0)
+    if (first->_allocated_mem == 0)
     {
         ++first->_allocated_mem;
         first->allowed_transitions = (STATE**) malloc(sizeof(STATE*));
@@ -18,7 +18,7 @@ add_transition(STATE* first,
     // The 2x figure is a speed tradeoff. The amount of reallocs needed is O(log(n)),
     // the space used is still O(n), and you never waste more memory than you are
     // already using.
-    if(first->num_transitions > first->_allocated_mem)
+    if (first->num_transitions > first->_allocated_mem)
     {
         first->_allocated_mem = first->_allocated_mem << 1;
         first->allowed_transitions = (STATE**) realloc(first->allowed_transitions, first->_allocated_mem * sizeof(STATE*));
@@ -33,10 +33,10 @@ int
 execute_transition(STATE_MACHINE* sm,
                    char c)
 {
-    for(size_t i=0; i < sm->current_state->num_transitions; i++)
+    for (size_t i=0; i < sm->current_state->num_transitions; i++)
     {
         // We jump to the first transition whose state matches the input.
-        if(sm->current_state->allowed_transitions[i]->state == c)
+        if (sm->current_state->allowed_transitions[i]->state == c)
         {
             sm->current_state = sm->current_state->allowed_transitions[i];
             return EXIT_SUCCESS;

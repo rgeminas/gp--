@@ -370,7 +370,13 @@ actual_parameter: expression
 ;
 
 if_statement: T_IF expression T_THEN statement
+{
+    // Check that expression has bool type
+}
             | T_IF expression T_THEN statement T_ELSE statement
+{
+    // Check that expression has bool type
+}
 ;
 
 while_statement: T_WHILE expression T_DO statement
