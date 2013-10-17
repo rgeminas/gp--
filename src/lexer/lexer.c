@@ -25,10 +25,12 @@ FILE* _f = NULL;
 
 extern int yytype;
 extern YYSTYPE yylval;
+extern int yydebug;
 
 char** secondary_tokens; 
 size_t sec_alloc = 1;
 size_t sec_i = 0;
+
 
 TOKEN
 skip_nontokens_file(FILE* file,
@@ -141,9 +143,10 @@ next_token_file(FILE* file,
 int 
 yylex(void)
 {
-    #ifndef __NODEBUG
+    if (yydebug)
+    {
         print_table();
-    #endif
+    }
     if (_f == NULL) return T_INVALID;
     TOKEN p = next_token_file(_f, _sm, _wssm);
     if (p.type == T_EOF)
@@ -158,7 +161,7 @@ yylex(void)
             secondary_tokens = (char**) realloc(secondary_tokens, sec_alloc * sizeof(char*));
         }
         size_t i;
-        for (i=0; i<sec_i; ++i)
+        for (i = 0; i < sec_i; ++i)
         {
             if (!stricmp(secondary_tokens[i], p.token_value))
             {

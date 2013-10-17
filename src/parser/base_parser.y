@@ -163,7 +163,7 @@ variable_definition: variable_group T_SEMICOLON
 {
     for (khiter_t k = kh_begin($1->parameter_list); k != kh_end($1->parameter_list); ++k)
     {
-        if(kh_exist($1->parameter_list, k))
+        if (kh_exist($1->parameter_list, k))
         {
             symrec* s = kh_value($1->parameter_list, k);
             s->spec = VAR;
@@ -180,7 +180,7 @@ variable_group: T_ID star_comma_id T_COLON type
     int ret;
     $$ = $2; 
     khiter_t k = kh_get(id, $$->parameter_list, $1);
-	if(k == kh_end($$->parameter_list))
+	if (k == kh_end($$->parameter_list))
     {
         k = kh_put(id, $$->parameter_list, $1, &ret);
         // Create symrec for the parameter!
@@ -216,7 +216,7 @@ star_comma_id:
     int ret;
     $$ = $3; 
     khiter_t k = kh_get(id, $$->parameter_list, $2);
-	if(k == kh_end($$->parameter_list))
+	if (k == kh_end($$->parameter_list))
     {
         k = kh_put(id, $$->parameter_list, $2, &ret);
         // Create symrec for the parameter!
@@ -259,7 +259,7 @@ procedure_block: T_PROCEDURE T_ID opt_brc_formal_parameter_list_brc T_SEMICOLON
     // add stuff from parameter_list to the newly-created scope so the underlying function can access it
     for (khiter_t kp = kh_begin(hp); kp != kh_end(hp); ++kp)
     {
-        if(kh_exist(hp, kp))
+        if (kh_exist(hp, kp))
         {
             add_to_scope(copy_symrec(kh_value(hp, kp)));
         }
@@ -353,6 +353,15 @@ assignment_statement: variable_access T_ASSIGN expression
 ;
 
 procedure_statement: T_ID opt_brc_actual_parameter_list_brc
+{
+    symrec* s = search_in_any_scope($1);
+    if (s == NULL || s->spec != PROCEDURE)
+    {
+        fprintf(stderr, "ERROR: Undefined procedure '%s'\n", secondary_tokens[$1]);
+        YYERROR;
+    }
+    // Check if signature matches once we get expression types straightened out!
+}
 ;
 
 opt_brc_actual_parameter_list_brc:

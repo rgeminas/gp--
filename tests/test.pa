@@ -31,7 +31,9 @@ program HelloWorld;
         var
             g: integer;
     begin
-        g := f or a
+        g := f or a;
+        ProcedureWithNoParam;
+        ProcedureWithParams(a, b + c, c, e, f, g)
     end;
 begin
     h:=3

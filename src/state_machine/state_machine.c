@@ -33,7 +33,7 @@ int
 execute_transition(STATE_MACHINE* sm,
                    char c)
 {
-    for (size_t i=0; i < sm->current_state->num_transitions; i++)
+    for (size_t i = 0; i < sm->current_state->num_transitions; i++)
     {
         // We jump to the first transition whose state matches the input.
         if (sm->current_state->allowed_transitions[i]->state == c)

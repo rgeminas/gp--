@@ -45,7 +45,7 @@ make_basic_tokenizer_state(const PAIR * tokens,
                            size_t depth)
 {
     STATE initial_state_val = { value[depth], NULL, 0, 0, type  };
-    for (size_t i=0; i<num_tokens; i++)
+    for (size_t i = 0; i < num_tokens; i++)
     {
         char* token = tokens[i].token;
         TOKEN_TYPE next_type = tokens[i].type;
@@ -56,7 +56,7 @@ make_basic_tokenizer_state(const PAIR * tokens,
             else
             {
                 size_t j;
-                for (j=0; j<i; j++)
+                for (j = 0; j < i; j++)
                 {
                     char* token_to_check = tokens[j].token;
                     // Comparing until position depth + 1 is the same as comparing depth + 2 positions
@@ -87,10 +87,10 @@ add_basic_tokenizing(STATE_MACHINE* sm,
     memcpy(tokens, unsorted_tokens, num_tokens * sizeof(PAIR));
     qsort(tokens, num_tokens, sizeof(PAIR), compare_string_size);
 
-    for (size_t i=0; i<num_tokens; i++)
+    for (size_t i = 0; i < num_tokens; i++)
     {
         size_t j;
-        for (j=0; j<i; j++)
+        for (j = 0; j < i; j++)
         {
             if (tokens[i].token[0] == tokens[j].token[0]) break;
         }
@@ -108,13 +108,13 @@ returning T_ID for incomplete tokens.
 */
 STATE* 
 make_basic_keyword_tokenizer_state(const PAIR * tokens,
-                           size_t num_tokens,
-                           char* value,
-                           TOKEN_TYPE type,
-                           size_t depth)
+                                   size_t num_tokens,
+                                   char* value,
+                                   TOKEN_TYPE type,
+                                   size_t depth)
 {
     STATE initial_state_val = { value[depth], NULL, 0, 0, type  };
-    for (size_t i=0; i<num_tokens; i++)
+    for (size_t i = 0; i < num_tokens; i++)
     {
         char* token = tokens[i].token;
         TOKEN_TYPE next_type = tokens[i].type;
@@ -125,7 +125,7 @@ make_basic_keyword_tokenizer_state(const PAIR * tokens,
             else
             {
                 size_t j;
-                for (j=0; j<i; j++)
+                for (j = 0; j < i; j++)
                 {
                     char* token_to_check = tokens[j].token;
                     // Comparing until position depth + 1 is the same as comparing depth + 2 positions
@@ -149,17 +149,17 @@ and returns T_ID for an incomplete token.
 */
 void
 add_basic_keyword_tokenizing(STATE_MACHINE* sm,
-                     PAIR* unsorted_tokens,
-                     size_t num_tokens)
+                             PAIR* unsorted_tokens,
+                             size_t num_tokens)
 {
     PAIR* tokens = (PAIR*) malloc(num_tokens * sizeof(PAIR));
     memcpy(tokens, unsorted_tokens, num_tokens * sizeof(PAIR));
     qsort(tokens, num_tokens, sizeof(PAIR), compare_string_size);
 
-    for (size_t i=0; i<num_tokens; i++)
+    for (size_t i = 0; i < num_tokens; i++)
     {
         size_t j;
-        for (j=0; j<i; j++)
+        for (j = 0; j < i; j++)
         {
             if (tokens[i].token[0] == tokens[j].token[0]) break;
         }
@@ -187,34 +187,34 @@ add_number_recognition(STATE_MACHINE* sm)
     memcpy(s_real, &s_real_val, sizeof(STATE));
 
     //Constructs states for real numbers after the dot.
-    for (size_t i=0; i<10; i++)
+    for (size_t i = 0; i < 10; i++)
     {
         STATE s = { numerics[i], NULL, 0, 0, T_REAL_CONST };
         memcpy(real_states + i, &s, sizeof(STATE));
     }
     // Adds recursive transitions to each other real number state
-    for (size_t i=0; i<10; i++)
+    for (size_t i = 0; i < 10; i++)
     {
-        for (size_t j=0; j<10; j++)
+        for (size_t j = 0; j < 10; j++)
         {
             // Allows a digit to be followed by a digit.
             add_transition(real_states + i, real_states + j);
         }
     }
     // Allows a dot to be followed by any digit.
-    for (size_t i=0; i<10; i++)
+    for (size_t i = 0; i < 10; i++)
     {
         add_transition(s_real, real_states + i);
     }
     // Constructs states for integers.
-    for (size_t i=0; i<10; i++)
+    for (size_t i = 0; i < 10; i++)
     {
         STATE s = { numerics[i], NULL, 0, 0, T_INT_CONST };
         memcpy(numeric_states + i, &s, sizeof(STATE));
     }
-    for (size_t i=0; i<10; i++)
+    for (size_t i = 0; i < 10; i++)
     {
-        for (size_t j=0; j<10; j++)
+        for (size_t j = 0; j < 10; j++)
         {
             // Allows a digit to be followed by a digit.
             add_transition(numeric_states + i, numeric_states + j);
@@ -222,7 +222,7 @@ add_number_recognition(STATE_MACHINE* sm)
         // An integer followed by a dot becomes a real.
         add_transition(numeric_states + i, s_real);
     }
-    for (size_t i=0; i<10; i++)
+    for (size_t i = 0; i < 10; i++)
     {
         add_transition((sm)->initial_state, numeric_states + i);
     }
@@ -238,16 +238,16 @@ add_identifier_states(STATE* s,
                       STATE* id_alphanumeric_states,
                       size_t num_alphanum)
 {
-    for (size_t i=0; i<num_alphanum; i++)
+    for (size_t i = 0; i < num_alphanum; i++)
     {
         size_t j;
-        for (j=0; j<s->num_transitions; j++)
+        for (j = 0; j < s->num_transitions; j++)
         {
             if (s->allowed_transitions[j]->state == alphanumerics[i]) break;
         }
         if (j < s->num_transitions) continue;
         add_transition(s, id_alphanumeric_states + i);
-        for (j=0; j<s->num_transitions; j++)
+        for (j = 0; j < s->num_transitions; j++)
         {
             add_identifier_states(s->allowed_transitions[i], id_alphanumeric_states, num_alphanum);
         }
@@ -270,42 +270,42 @@ add_keyword_recognition(STATE_MACHINE* sm,
     STATE* id_alpha_states = (STATE*) malloc(num_alpha * sizeof(STATE));
     STATE* id_alphanumeric_states = (STATE*) malloc(num_alphanum * sizeof(STATE));
 
-    for (size_t i=0; i<num_alpha; i++)
+    for (size_t i = 0; i < num_alpha; i++)
     {
         STATE id_alpha_state_val = { alpha[i], NULL, 0, 0, T_ID };
         memcpy(id_alpha_states + i, &id_alpha_state_val, sizeof(STATE));
     }
-    for (size_t i=0; i<num_alphanum; i++)
+    for (size_t i = 0; i < num_alphanum; i++)
     {
         STATE id_alphanum_state_val = { alphanumerics[i], NULL, 0, 0, T_ID };
         memcpy(id_alphanumeric_states + i, &id_alphanum_state_val, sizeof(STATE));
     }
-    for (size_t i=0; i<num_alpha; i++)
+    for (size_t i = 0; i < num_alpha; i++)
     {
-        for (size_t j=0; j<num_alphanum; j++)
+        for (size_t j = 0; j < num_alphanum; j++)
         {
             // An alpha can be followed by any alphanum
             add_transition(id_alpha_states + i, id_alphanumeric_states + j);
         }
     }
-    for (size_t i=0; i<num_alphanum; i++)
+    for (size_t i = 0; i < num_alphanum; i++)
     {
-        for (size_t j=0; j<num_alphanum; j++)
+        for (size_t j = 0; j < num_alphanum; j++)
         {
             // An alphanum can be followed by any alphanum;
             add_transition(id_alphanumeric_states + i, id_alphanumeric_states + j);
         }
     }
-    for (size_t i=0; i<num_alpha; i++)
+    for (size_t i = 0; i < num_alpha; i++)
     {
         size_t j;
-        for (j=0; j<sm->initial_state->num_transitions; j++)
+        for (j = 0; j < sm->initial_state->num_transitions; j++)
         {
             if (sm->initial_state->allowed_transitions[j]->state == alpha[i]) break;
         }
-        if (j<sm->initial_state->num_transitions) continue;
+        if (j < sm->initial_state->num_transitions) continue;
         add_transition(sm->initial_state, id_alpha_states + i);
-        for (j=0; j<sm->initial_state->num_transitions; j++)
+        for (j = 0; j < sm->initial_state->num_transitions; j++)
         {
             // If the character in the state is an alpha, it should be able to segue
             // into the identifier states.
@@ -388,7 +388,7 @@ make_nontoken_skipper(void)
     STATE* states_inside_brace_comments = (STATE*) malloc((0x7e - 0x20 + 4) * sizeof(STATE));
 
     int c = 0;
-    for (char i=0x20; i<=0x7e; i++)
+    for (char i = 0x20; i <= 0x7e; i++)
     {
         STATE state = { i, NULL, 0, 0, T_INVALID };
         memcpy(states_inside_brace_comments + c, &state, sizeof(STATE));
@@ -400,16 +400,16 @@ make_nontoken_skipper(void)
         }
     }
     // Allow tabs, newlines, vtabs and carriage returns inside brace_comments.
-    for (size_t i=0; i<4; i++)
+    for (size_t i = 0; i < 4; i++)
     {
         STATE state = { whitespace[i], NULL, 0, 0, T_INVALID };
         memcpy(states_inside_brace_comments + c, &state, sizeof(STATE));
         add_transition(states_inside_brace_comments + c, end_comment_brace);
         c++;
     }
-    for (char i=0; i<0x7e - 0x20 + 4; i++)
+    for (char i = 0; i < 0x7e - 0x20 + 4; i++)
     {
-        for (char j=0; j<0x7e - 0x20 + 4; j++)
+        for (char j = 0; j < 0x7e - 0x20 + 4; j++)
         {
             add_transition(states_inside_brace_comments + i, states_inside_brace_comments + j);
         }
@@ -417,7 +417,7 @@ make_nontoken_skipper(void)
 
     STATE* states_inside_bracket_comments = (STATE*) malloc((0x7e - 0x20 + 4) * sizeof(STATE));
     c = 0;
-    for (char i=0x20; i<=0x7e; i++)
+    for (char i = 0x20; i <= 0x7e; i++)
     {
         STATE state = { i, NULL, 0, 0, T_INVALID };
         memcpy(states_inside_bracket_comments + c, &state, sizeof(STATE));
@@ -432,29 +432,29 @@ make_nontoken_skipper(void)
         }
     }
     // Allow tabs, newlines, vtabs and carriage returns inside bracket_comments.
-    for (size_t i=0; i<4; i++)
+    for (size_t i = 0; i < 4; i++)
     {
         STATE state = { whitespace[i], NULL, 0, 0, T_INVALID };
         memcpy(states_inside_bracket_comments + c, &state, sizeof(STATE));
         add_transition(states_inside_bracket_comments + c, maybe_end_comment_bracket);
         c++;
     }
-    for (char i=0; i<0x7e - 0x20 + 4; i++)
+    for (char i = 0; i < 0x7e - 0x20 + 4; i++)
     {
-        for (char j=0; j<0x7e - 0x20 + 4; j++)
+        for (char j = 0; j < 0x7e - 0x20 + 4; j++)
         {
             add_transition(states_inside_bracket_comments + i, states_inside_bracket_comments + j);
         }
     }
     STATE* whitespace_states = (STATE*) malloc(num_whitespace * sizeof(STATE));
-    for (size_t i=0; i<num_whitespace; i++)
+    for (size_t i = 0; i < num_whitespace; i++)
     {
         STATE state = { whitespace[i], NULL, 0, 0, T_ID };
         memcpy(whitespace_states + i, &state, sizeof(STATE));
     }
-    for (size_t i=0; i<num_whitespace; i++)
+    for (size_t i = 0; i < num_whitespace; i++)
     {
-        for (size_t j=0; j<num_whitespace; j++)
+        for (size_t j = 0; j < num_whitespace; j++)
         {
             add_transition(whitespace_states + i, whitespace_states + j);
         }
@@ -464,7 +464,7 @@ make_nontoken_skipper(void)
         add_transition(end_comment_bracket, whitespace_states + i);
     }
 
-    for (size_t i=0; i<num_whitespace; i++)
+    for (size_t i = 0; i < num_whitespace; i++)
     {
         add_transition(sm->initial_state, whitespace_states + i);
     }
