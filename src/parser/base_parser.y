@@ -172,8 +172,7 @@ variable_definition: variable_group T_SEMICOLON
     }
     free($1->parameter_list);
     free($1);
-}
-;
+};
 
 variable_group: T_ID star_comma_id T_COLON type
 {
@@ -203,8 +202,7 @@ variable_group: T_ID star_comma_id T_COLON type
         fprintf(stderr, "Multiple declarations of the same symbol '%s'.\n", secondary_tokens[$1]);
         YYERROR;
     }
-}
-;
+};
 
 star_comma_id: 
 {
@@ -232,13 +230,20 @@ star_comma_id:
         fprintf(stderr, "Multiple declarations of the same symbol '%s'.\n", secondary_tokens[$2]);
         YYERROR;
     }
-}
-;
+};
 
-type: T_INTEGER { $$ = T_INTEGER; }
-    | T_REAL { $$ = T_REAL; }
-    | T_BOOLEAN { $$ = T_BOOLEAN; }
-;
+type: T_INTEGER 
+{ 
+    $$ = T_INTEGER; 
+}
+    | T_REAL 
+{ 
+    $$ = T_REAL; 
+}
+    | T_BOOLEAN 
+{ 
+    $$ = T_BOOLEAN; 
+};
 
 procedure_definition: procedure_block block_body T_SEMICOLON 
 { 
@@ -277,8 +282,7 @@ opt_brc_formal_parameter_list_brc:
     $$ = (symrec*) malloc(sizeof(symrec));
     $$->parameter_list = $2->parameter_list;
     free($2);
-}
-;
+};
 
 formal_parameter_list: parameter_definition star_smc_parameter_definition
 {
@@ -296,8 +300,7 @@ formal_parameter_list: parameter_definition star_smc_parameter_definition
         fprintf(stderr, "\nERROR: Definition of multiple variables with the same identifier.\n");
     }
     if (!ret) YYERROR;
-}
-;
+};
 
 star_smc_parameter_definition:
 {
@@ -324,14 +327,12 @@ star_smc_parameter_definition:
     }
     free($3->parameter_list);
     if (!ret) YYERROR;
-}
-;
+};
 
 parameter_definition: variable_group
 {
     $$ = $1;
-}
-;
+};
 
 statement: 
          | procedure_statement
@@ -349,8 +350,7 @@ assignment_statement: variable_access T_ASSIGN expression
         fprintf(stderr, "ERROR: Assignment to non-lvalue '%s'.\n", secondary_tokens[$1]);
         YYERROR;
     }
-}
-;
+};
 
 procedure_statement: T_ID opt_brc_actual_parameter_list_brc
 {
@@ -361,8 +361,7 @@ procedure_statement: T_ID opt_brc_actual_parameter_list_brc
         YYERROR;
     }
     // Check if signature matches once we get expression types straightened out!
-}
-;
+};
 
 opt_brc_actual_parameter_list_brc:
                                  | T_LBRACKET actual_parameter_list T_RBRACKET
@@ -385,8 +384,7 @@ if_statement: T_IF expression T_THEN statement
             | T_IF expression T_THEN statement T_ELSE statement
 {
     // Check that expression has bool type
-}
-;
+};
 
 while_statement: T_WHILE expression T_DO statement
 ;
@@ -458,8 +456,7 @@ variable_access: T_ID
         fprintf(stderr, "Use of undeclared identifier '%s'.\n", secondary_tokens[$1]);
         YYERROR;
     }
-}
-;
+};
 
 constant: T_INT_CONST
         | T_REAL_CONST
