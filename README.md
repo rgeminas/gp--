@@ -13,7 +13,7 @@ Usage: $./gp-- source_file.pa
 
 Current State
 -------------
-Currently, lexing and parsing are complete, though code generation doesn't happen yet and there is no AST construction as of now.
+Currently, lexing, parsing and scope checks are complete, though code generation doesn't happen yet and type checking is still not complete.
 
 Lexer
 -----
@@ -21,4 +21,4 @@ The lexer uses a custom simple state machine implementation, and constructs a to
 
 Parser
 ------
-The parser is an LALR(1) parser written using bison.
+The parser is an LALR(1) parser written using bison. We use khash to construct the symbol tables.
