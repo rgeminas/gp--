@@ -333,12 +333,12 @@ parameter_definition: variable_group
 }
 ;
 
-statement: assignment_statement
+statement: 
          | procedure_statement
          | if_statement
          | while_statement
          | compound_statement
-         |
+         | assignment_statement
 ;
 
 assignment_statement: variable_access T_ASSIGN expression

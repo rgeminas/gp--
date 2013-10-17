@@ -20,4 +20,9 @@
 *.swp
 *.swo
 
+# bison files
+base_parser.h
+base_parser.tab.c
+base_parser.output
+
 build/*
