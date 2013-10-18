@@ -60,10 +60,13 @@ symrec*
 search_in_any_scope(int id);
 
 symrec*
-const_declare(int id, YYSTYPE value, int type);
+const_declare(int id, 
+              YYSTYPE value, 
+              int type);
 
 symrec*
-var_declare(int id, int type);
+var_declare(int id, 
+            int type);
 
 symrec* 
 proc_declare(int id);

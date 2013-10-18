@@ -1,17 +1,19 @@
 %{
 
+#include "scope/khash.h"
 #include "lexer/lexer.h"
 #include "lexer/token.h"
 #include "scope/symrec.h"
-#include "scope/khash.h"
 
 extern int yylex(void);
 extern int yyerror(char*);
 extern char** secondary_tokens;
 
 %}
-%no_lines
-
+%code requires 
+{
+#include <stddef.h>
+}
 %union 
 {
     int int_const;
@@ -74,7 +76,7 @@ extern char** secondary_tokens;
 /* Non-token tokens */
 %token T_REWIND_ONE          254
 %token T_INVALID             256
-
+%token MAX_TOKEN_ID
 /*
 Notation: opt_XXX: [ XXX ]
           star_XXX: { XXX }

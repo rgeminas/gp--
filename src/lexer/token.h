@@ -5,6 +5,7 @@
 #ifndef __TOKEN_H
 #define __TOKEN_H
 
+#include <stdlib.h>
 // Include bison generated tokens.
 #include "parser/base_parser.h"
 

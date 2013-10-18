@@ -73,11 +73,11 @@ main(int argc, char** argv)
         }
     }
 
-#   if !_MSC_VER
-        _sm = make_full_tokenizer(tokens, sizeof(tokens)/sizeof(*tokens), keywords, sizeof(keywords)/sizeof(*keywords));
-#   else
+//#   if !_MSC_VER
+//        _sm = make_full_tokenizer(tokens, sizeof(tokens)/sizeof(*tokens), keywords, sizeof(keywords)/sizeof(*keywords));
+//#   else
         _sm = make_full_tokenizer(tokens, 22, keywords, 26);
-#   endif
+//#   endif
 
     _wssm = make_nontoken_skipper(); 
     secondary_tokens = (char**) malloc(sizeof(char*));

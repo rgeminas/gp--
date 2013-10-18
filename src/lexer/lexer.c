@@ -173,16 +173,22 @@ yylex(void)
         {
             secondary_tokens[sec_i++] = p.token_value;
         }
+        else
+        {
+            free(p.token_value);
+        }
         // Set secondary token value.
         yylval.id = i;
     }
     else if (p.type == T_INT_CONST)
     {
         yylval.int_const = atoi((char*) p.token_value);
+        free(p.token_value);
     }
     else if (p.type == T_REAL_CONST)
     {
         yylval.real_const = atof((char*) p.token_value);
+        free(p.token_value);
     }
     else if (p.type == T_BOOLEAN_CONST)
     {
@@ -194,9 +200,11 @@ yylex(void)
         {
             yylval.int_const = 0;
         }
+        free(p.token_value);
     }
     else // 2ndary token unneeded
     {
+        free(p.token_value);
         //yylval.id_name = p.token_value;
     }
     //printf("%d ", p.type);

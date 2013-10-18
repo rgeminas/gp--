@@ -32,7 +32,7 @@ program HelloWorld;
             g: integer;
     begin
         g := f or a;
-        ProcedureWithNoParam;
+        ProcedureWithNoParams;
         ProcedureWithParams(a, b + c, c, e, f, g)
     end;
 begin

@@ -9,6 +9,7 @@ if (MSVC)
     set (CMAKE_CXX_FLAGS CMAKE_C_FLAGS)
     set (CMAKE_CXX_FLAGS_DEBUG CMAKE_C_FLAGS_DEBUG)
 else ()
+    set (CC "~/.vim/bin/cc_args.py gcc")
     project (gp-- C)
     set (CMAKE_C_FLAGS "-std=c99")
 endif ()
@@ -23,7 +24,7 @@ message (STATUS ${CMAKE_SOURCE_DIR})
 
 BISON_TARGET (base_parser 
              ${CMAKE_SOURCE_DIR}/${src}/parser/base_parser.y 
-             ${CMAKE_SOURCE_DIR}/${src}/parser/base_parser.tab.c
+             ${CMAKE_SOURCE_DIR}/${src}/parser/base_parser.c
              HEADER
              ${CMAKE_SOURCE_DIR}/${src}/parser/base_parser.h
              VERBOSE
@@ -37,8 +38,8 @@ set (HEADERS
     ${src}/lexer/lexical_state_machine.h
     ${src}/lexer/lexer.h
     ${src}/lexer/token.h
-    ${src}/parser/parser.h
     ${src}/scope/symrec.h
+    ${src}/scope/type.h
     ${src}/portability/portability.h
     )
 
@@ -49,6 +50,7 @@ set (SOURCES
     ${src}/lexer/token.c
     ${src}/lexer/lexer.c
     ${src}/scope/symrec.c
+    ${src}/scope/type.c
     )
 
 if(MSVC)
@@ -73,13 +75,15 @@ if(MSVC)
 
     source_group (headers\\scope FILES 
                  ${src}/scope/symrec.h
+                 ${src}/scope/type.h
                  ${src}/scope/khash.h
                  )
     source_group (sources FILES ${src}/main.c)
     source_group (sources\\state_machine FILES ${src}/state_machine/state_machine.c)
-    source_group (sources\\parser FILES ${src}/parser/base_parser.tab.c)
+    source_group (sources\\parser FILES ${src}/parser/base_parser.c)
     source_group (sources\\scope FILES 
                  ${src}/scope/symrec.c
+                 ${src}/scope/type.c
                  )
     source_group (sources\\lexer FILES 
                  ${src}/lexer/token.c
@@ -91,7 +95,6 @@ endif()
 if (MSVC)
     set_source_files_properties (${SOURCES} ${BISON_base_parser_OUTPUTS} PROPERTIES LANGUAGE CXX)
 else ()
-    set_source_files_properties (${SOURCES} ${BISON_base_parser_OUTPUTS} PROPERTIES LANGUAGE C)
 endif ()
 
 add_executable (gp-- 
@@ -103,5 +106,4 @@ add_executable (gp--
 if (MSVC)
     set_property (TARGET gp-- PROPERTY LINKER_LANGUAGE CXX)
 else ()
-    set_property (TARGET gp-- PROPERTY LINKER_LANGUAGE C)
 endif ()

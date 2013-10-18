@@ -16,7 +16,7 @@ print_symrec(symrec* s)
 void
 print_table()
 {
-    fprintf(stderr, "----BEGIN TABLE----\n");
+    fprintf(stderr, "\n-----BEGIN TABLE-----\n");
     symbol_stack* stack = scope_stack;
     while (stack != NULL)
     {
