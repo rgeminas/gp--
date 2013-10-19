@@ -12,6 +12,7 @@ else ()
     set (CC "~/.vim/bin/cc_args.py gcc")
     project (gp-- C)
     set (CMAKE_C_FLAGS "-std=c99")
+    set (CMAKE_C_FLAGS_DEBUG "-g")
 endif ()
 
 set (src src)

@@ -5,6 +5,7 @@
 #include "parser/base_parser.h"
 // Forward declaration.
 struct symrec;
+struct darray_symrec;
 
 // "declaration" of hashtable type
 KHASH_MAP_INIT_INT(id, struct symrec*)
@@ -20,8 +21,46 @@ typedef struct symrec
     size_t id; // 2ndary token
     int type; // Among T_BOOLEAN, T_INTEGER, T_REAL. Bite me.
     YYSTYPE value; // This is never going to be a symrec
-    khash_t(id)* parameter_list;
+    struct darray_symrec* parameter_list; // Linked list of parameters. Order is only important for parameter lists
+    int order; // Only relevant for PARAM.
 } symrec;
+
+// START OF DARRAY FUNCTIONS
+
+// TODO: Change this into my own darray class.
+// A generic one. A fucking awesome one like khash.
+// Before that, change this into a deque.
+typedef struct darray_symrec
+{
+    symrec** base;
+    //symrec** start;
+    //symrec** end;
+    size_t allocated_mem;
+    size_t length;
+} darray_symrec;
+
+darray_symrec* 
+darray_init();
+
+void 
+darray_push_back(darray_symrec*, 
+                 symrec*);
+
+void
+darray_push_front(darray_symrec*,
+                  symrec*);
+
+void 
+darray_remove(darray_symrec*, 
+              size_t);
+
+symrec*
+darray_find_id(darray_symrec*,
+               int);
+
+#define darray_get(arr, i) ((arr)->base[(i)])
+
+// END OF DARRAY FUNCTIONS
 
 // This struct is basically a backwards linked list of hashtables. I thought of 
 // making a hashtable of hashtables, but decided this way was easier to work with
@@ -71,6 +110,7 @@ var_declare(int id,
 symrec* 
 proc_declare(int id);
 
+// TODO: Take this out of here.
 //
 // If this were C++, this would be called
 //    operator +=(...)

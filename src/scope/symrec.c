@@ -7,10 +7,104 @@ extern char** secondary_tokens;
 
 symbol_stack* scope_stack;
 
+// START DARRAY FUNCTIONS HERE
+
+darray_symrec* 
+darray_init()
+{
+    darray_symrec* arr = (darray_symrec*) malloc(sizeof(darray_symrec));
+    arr->base = (symrec**) malloc(sizeof(symrec*));
+    arr->length = 0;
+    arr->allocated_mem = 1;
+    return arr;
+}
+
+void 
+darray_memcheck(darray_symrec* arr)
+{
+    if (arr->length == arr->allocated_mem)
+    {
+        arr->allocated_mem <<= 1;
+        arr->base = (symrec**) realloc(arr->base, arr->allocated_mem * sizeof(symrec*));
+    }
+    if (arr->length < (arr->allocated_mem >> 1))
+    {
+        arr->allocated_mem >>= 1;
+        arr->base = (symrec**) realloc(arr->base, arr->allocated_mem * sizeof(symrec*));
+    }
+}
+
+void 
+darray_push_back(darray_symrec* arr, 
+           symrec* s)
+{
+    arr->base[arr->length++] = s;
+    darray_memcheck(arr);
+}
+
+// TODO: This is very fucking inefficient. Turn this into a deque
+// after it's presented to the professor
+void 
+darray_push_front(darray_symrec* arr, 
+                  symrec* s)
+{
+    symrec* temp = darray_get(arr, 0);
+    for (size_t i = 0; i < arr->length; i++)
+    {
+        symrec* temp2 = darray_get(arr, i+1);
+        darray_get(arr, i+1) = temp;
+        temp = temp2;
+    }
+    darray_get(arr, 0) = s;
+    arr->length++;
+    darray_memcheck(arr);
+}
+
+void 
+darray_remove(darray_symrec* arr, 
+              size_t i)
+{
+    for (size_t j = 0, k = 0; j < arr->length; j++)
+    {
+        if (j == i) continue;
+        else
+        {
+            arr->base[k] = arr->base[j];
+        }
+    }
+    arr->length--;
+    darray_memcheck(arr);
+}
+
+symrec*
+darray_find_id(darray_symrec* arr,
+               int id)
+{
+    for (int i = 0; i < arr->length; i++)
+    {
+        if (darray_get(arr, i)->id == id)
+        {
+            return darray_get(arr, i);
+        }
+    }
+    return NULL;
+}
+// END DARRAY FUNCTIONS HERE
+
 void
 print_symrec(symrec* s)
 {
+    if (s == NULL) return;
     fprintf(stderr, "sp: %d // id: %s // type: %d\n", s->spec, secondary_tokens[s->id], s->type);
+    if (s->parameter_list != NULL)
+    {
+        fprintf(stderr, "PARAMS: \n");
+        for (size_t i = 0; i < s->parameter_list->length; i++)
+        {
+            fprintf(stderr, "    ");
+            print_symrec(darray_get(s->parameter_list, i));
+        }
+    }
 }
 
 void
@@ -74,19 +168,17 @@ delete_scope()
     {
 		if (kh_exist(h, k)) 
         {
-            khash_t(id)* hp = kh_value(h, k)->parameter_list;
+            darray_symrec* arrp = kh_value(h, k)->parameter_list;
             // You can't iterate over a null parameter list.
-            if (hp == NULL) continue;
+            if (arrp == NULL) continue;
             // Free the symrecs in the parameter list
-            for (khiter_t kp = kh_begin(hp); kp != kh_end(hp); ++kp)
+            for (size_t i = 0; i < arrp->length; i++)
             {
-                if (kh_exist(hp, kp))
-                {
-                    // Parameter symrecs can't have more parameters. If that
-                    // weren't the case we'd need to free recursively.
-                    free(kh_value(hp, kp));
-                }
+                // Parameter symrecs can't have more parameters. If that
+                // weren't the case we'd need to free recursively.
+                free(darray_get(arrp, i));
             }
+            free(arrp->base);
             // Free the parameter list itself
             free(kh_value(h, k)->parameter_list); 
             // Free the symrec

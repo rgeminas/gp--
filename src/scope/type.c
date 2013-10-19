@@ -2,19 +2,9 @@
 #include "scope/symrec.h"
 #include "parser/base_parser.h"
 
-#define EXPR_RETURN(lt, rt, op) return_by_expression[type_table[lt]][type_table[rt]][operator_table[op]]
-#define num_types 4
-#define num_operators 15
 
-int system_types[] = { T_INTEGER, T_REAL, T_BOOLEAN, T_INVALID };
-int system_operators[] = { T_PLUS, T_MINUS, T_TIMES, T_DIVIDE, T_DIV, T_MOD, T_AND, T_OR, T_NOT, T_EQ, T_DIF, T_LEQ, T_GEQ, T_LT, T_GT};
 
-int type_table[MAX_TOKEN_ID]; 
-// *smirk*
-int operator_table[MAX_TOKEN_ID]; 
 
-// TODO: Make this into a fucking pointer already.
-int return_by_expression[num_types][num_types][num_operators];
 
 //
 // Initializes invalid values for all tokens that aren't types/operators
@@ -23,6 +13,9 @@ int return_by_expression[num_types][num_types][num_operators];
 //
 void initialize_type_tables()
 {
+    int system_types[num_types] = { T_INTEGER, T_REAL, T_BOOLEAN, T_INVALID };
+    int system_operators[num_operators] = { T_PLUS, T_MINUS, T_TIMES, T_DIVIDE, T_DIV, T_MOD, T_AND, T_OR, T_NOT, T_EQ, T_DIF, T_LEQ, T_GEQ, T_LT, T_GT};
+
     for (int i = 0; i < MAX_TOKEN_ID; i++)
     {
         type_table[i] = -1;
@@ -131,8 +124,8 @@ void initialize_type_tables()
     EXPR_RETURN(T_REAL, T_BOOLEAN, T_AND) = T_INVALID;
     
     EXPR_RETURN(T_BOOLEAN, T_INTEGER, T_AND) = T_BOOLEAN;
-    EXPR_RETURN(T_BOOLEAN, T_REAL, T_AND) = T_BOOLEAN;
-    EXPR_RETURN(T_BOOLEAN, T_BOOLEAN, T_AND) = T_BOOLEAN;
+    EXPR_RETURN(T_BOOLEAN, T_REAL, T_AND) = T_INVALID;
+    EXPR_RETURN(T_BOOLEAN, T_BOOLEAN, T_AND) = T_INVALID;
 
     // or 
     EXPR_RETURN(T_INTEGER, T_INTEGER, T_OR) =  T_INVALID;
@@ -143,8 +136,8 @@ void initialize_type_tables()
     EXPR_RETURN(T_REAL, T_REAL, T_OR) = T_INVALID;  
     EXPR_RETURN(T_REAL, T_BOOLEAN, T_OR) = T_INVALID;
     
-    EXPR_RETURN(T_BOOLEAN, T_INTEGER, T_OR) = T_BOOLEAN;
-    EXPR_RETURN(T_BOOLEAN, T_REAL, T_OR) = T_BOOLEAN;
+    EXPR_RETURN(T_BOOLEAN, T_INTEGER, T_OR) = T_INVALID;
+    EXPR_RETURN(T_BOOLEAN, T_REAL, T_OR) = T_INVALID;
     EXPR_RETURN(T_BOOLEAN, T_BOOLEAN, T_OR) = T_BOOLEAN;
 
     // not 
@@ -156,9 +149,9 @@ void initialize_type_tables()
     EXPR_RETURN(T_REAL, T_REAL, T_NOT) = T_INVALID;  
     EXPR_RETURN(T_REAL, T_BOOLEAN, T_NOT) = T_INVALID;
     
-    EXPR_RETURN(T_BOOLEAN, T_INTEGER, T_NOT) = T_BOOLEAN;
-    EXPR_RETURN(T_BOOLEAN, T_REAL, T_NOT) = T_BOOLEAN;
-    EXPR_RETURN(T_BOOLEAN, T_BOOLEAN, T_NOT) = T_BOOLEAN;
+    EXPR_RETURN(T_BOOLEAN, T_INTEGER, T_NOT) = T_INVALID;
+    EXPR_RETURN(T_BOOLEAN, T_REAL, T_NOT) = T_INVALID;
+    EXPR_RETURN(T_INVALID, T_BOOLEAN, T_NOT) = T_BOOLEAN;
 
     // = 
     EXPR_RETURN(T_INTEGER, T_INTEGER, T_EQ) =  T_BOOLEAN;

@@ -4,6 +4,7 @@
 #include "lexer/lexer.h"
 #include "lexer/token.h"
 #include "scope/symrec.h"
+#include "scope/type.h"
 
 extern int yylex(void);
 extern int yyerror(char*);
@@ -14,6 +15,7 @@ extern char** secondary_tokens;
 {
 #include <stddef.h>
 }
+
 %union 
 {
     int int_const;
@@ -87,10 +89,12 @@ such as allocating memory space;
 
 */
 
+/*%nolines*/
+
 %right T_THEN T_ELSE
 
 %type<record> formal_parameter_list opt_brc_formal_parameter_list_brc procedure_block variable_group star_comma_id parameter_definition star_smc_parameter_definition
-%type<id> T_ID variable_access type
+%type<id> T_ID variable_access type star_adding_operator_term factor expression simple_expression term adding_operator constant T_PLUS T_MINUS T_OR T_NOT
 %type<int_const> T_INT_CONST T_BOOLEAN_CONST
 %type<real_const> T_REAL_CONST
 
@@ -98,7 +102,11 @@ such as allocating memory space;
 input: T_PROGRAM T_ID T_SEMICOLON force_initialization block_body T_PERIOD { delete_scope(); } // deallocate last scope;
 ;
 
-force_initialization: { initialize_stack(); } // empty syntactic marker;
+force_initialization: 
+{ 
+    initialize_stack();
+    initialize_type_tables();
+};
 
 block_body: opt_constant_definition_part opt_variable_definition_part star_procedure_definition compound_statement
 ;
@@ -163,15 +171,13 @@ plus_variable_definition: variable_definition
 
 variable_definition: variable_group T_SEMICOLON
 {
-    for (khiter_t k = kh_begin($1->parameter_list); k != kh_end($1->parameter_list); ++k)
+    for (size_t i = 0; i < $1->parameter_list->length; i++)
     {
-        if (kh_exist($1->parameter_list, k))
-        {
-            symrec* s = kh_value($1->parameter_list, k);
-            s->spec = VAR;
-            add_to_scope(s);
-        } 
+        symrec* s = darray_get($1->parameter_list, i);
+        s->spec = VAR;
+        add_to_scope(s);
     }
+    // BIOHAZARD
     free($1->parameter_list);
     free($1);
 };
@@ -180,23 +186,20 @@ variable_group: T_ID star_comma_id T_COLON type
 {
     int ret;
     $$ = $2; 
-    khiter_t k = kh_get(id, $$->parameter_list, $1);
-	if (k == kh_end($$->parameter_list))
+    symrec* k = darray_find_id($$->parameter_list, $1);
+	if (k == NULL)
     {
-        k = kh_put(id, $$->parameter_list, $1, &ret);
-        // Create symrec for the parameter!
+        // Create symrec for the parameter
         symrec* s = (symrec*) malloc(sizeof(symrec));
         s->spec = PARAM;
         s->id = $1;
         s->parameter_list = NULL;
-        kh_value($$->parameter_list, k) = s;
+
+        darray_push_front($$->parameter_list, s);
         // Iterate over symrecs, set type.
-        for (k = kh_begin($$->parameter_list); k != kh_end($$->parameter_list); ++k)
+        for (size_t i = 0; i < $$->parameter_list->length; i++)
         {
-            if (kh_exist($$->parameter_list, k))
-            {
-                kh_value($$->parameter_list, k)->type = $4;
-            }
+            darray_get($$->parameter_list, i)->type = $4;
         }
     }
     else
@@ -209,22 +212,22 @@ variable_group: T_ID star_comma_id T_COLON type
 star_comma_id: 
 {
     $$ = (symrec*) malloc(sizeof(symrec));
-    $$->parameter_list = kh_init(id);
+    $$->parameter_list = darray_init();
 }
              | T_COMMA T_ID star_comma_id
 {
     int ret;
     $$ = $3; 
-    khiter_t k = kh_get(id, $$->parameter_list, $2);
-	if (k == kh_end($$->parameter_list))
+    symrec* k = darray_find_id($$->parameter_list, $2);
+	if (k == NULL)
     {
-        k = kh_put(id, $$->parameter_list, $2, &ret);
-        // Create symrec for the parameter!
+        // Create symrec for the parameter
         symrec* s = (symrec*) malloc(sizeof(symrec));
         s->spec = PARAM;
         s->id = $2;
         s->parameter_list = NULL;
-        kh_value($$->parameter_list, k) = s;
+
+        darray_push_front($$->parameter_list, s);
         // Type is still undefined!
     }
     else
@@ -255,7 +258,7 @@ procedure_definition: procedure_block block_body T_SEMICOLON
 procedure_block: T_PROCEDURE T_ID opt_brc_formal_parameter_list_brc T_SEMICOLON 
 {
     $$ = proc_declare($2);
-    khash_t(id)* hp = $3->parameter_list;
+    darray_symrec* arr = $3->parameter_list;
     // Copy parameter list to the actual symrec
     $$->parameter_list = $3->parameter_list;
 
@@ -264,20 +267,16 @@ procedure_block: T_PROCEDURE T_ID opt_brc_formal_parameter_list_brc T_SEMICOLON
     create_scope();
 
     // add stuff from parameter_list to the newly-created scope so the underlying function can access it
-    for (khiter_t kp = kh_begin(hp); kp != kh_end(hp); ++kp)
+    for (size_t i = 0; i < arr->length; i++)
     {
-        if (kh_exist(hp, kp))
-        {
-            add_to_scope(copy_symrec(kh_value(hp, kp)));
-        }
+        add_to_scope(copy_symrec(darray_get(arr, i)));
     }
-    
 };
 
 opt_brc_formal_parameter_list_brc: 
 {
     $$ = (symrec*) malloc(sizeof(symrec));
-    $$->parameter_list = kh_init(id);
+    $$->parameter_list = darray_init();
 }
                                  | T_LBRACKET formal_parameter_list T_RBRACKET
 {
@@ -294,12 +293,23 @@ formal_parameter_list: parameter_definition star_smc_parameter_definition
     $$->type = 0; 
     // do not add to scope yet
     // MERGE parameter_definition into star_smc_parameter_definition and copy into formal_parameter_list
-    int ret;
-    $$->parameter_list = operator_plus_assign($1->parameter_list, $2->parameter_list, &ret);
+    int ret = 1;
+    for (size_t i = 0; i < $2->parameter_list->length; i++)
+    {
+        symrec* k = darray_find_id($1->parameter_list, darray_get($2->parameter_list, i)->id);
+        if (k != NULL)
+        {
+            ret = 0;
+            fprintf(stderr, "\nERROR: Definition of multiple parameters with the same identifier %s.\n", 
+                    secondary_tokens[darray_get($2->parameter_list, i)->id]);
+            break;
+        }
+        darray_push_back($1->parameter_list, darray_get($2->parameter_list, i));
+    }
+    $$->parameter_list = $1->parameter_list;
     free($2->parameter_list);
     if (!ret)
     {
-        fprintf(stderr, "\nERROR: Definition of multiple variables with the same identifier.\n");
     }
     if (!ret) YYERROR;
 };
@@ -311,7 +321,7 @@ star_smc_parameter_definition:
     $$->id = -1;
     $$->spec = PARAMLIST;
     $$->type = 0; 
-    $$->parameter_list = kh_init(id);
+    $$->parameter_list = darray_init();
 } 
                              | T_SEMICOLON parameter_definition star_smc_parameter_definition
 {
@@ -321,8 +331,18 @@ star_smc_parameter_definition:
     $$->type = 0; 
     // do not add to scope yet
     // MERGE parameter_definition into star_smc_parameter_definition and copy into formal_parameter_list
-    int ret;
-    $$->parameter_list = operator_plus_assign($2->parameter_list, $3->parameter_list, &ret);
+    int ret = 1;
+    for (size_t i = 0; i < $3->parameter_list->length; i++)
+    {
+        symrec* k = darray_find_id($2->parameter_list, darray_get($3->parameter_list, i)->id);
+        if (k != NULL)
+        {
+            ret = 0;
+            break;
+        }
+        darray_push_back($2->parameter_list, darray_get($3->parameter_list, i));
+    }
+    $$->parameter_list = $2->parameter_list;
     if (!ret)
     {
         fprintf(stderr, "\nERROR: Multiple parameters with the same name in the definition of a procedure.\n");
@@ -422,13 +442,29 @@ sign_operator: T_PLUS
 ;
 
 star_adding_operator_term: 
+{
+    $$ = T_INVALID;
+}
                          | adding_operator term star_adding_operator_term
-;
+{
+    if ($3 != T_INVALID)
+    {
+        $$ = EXPR_RETURN($2, $3, $1);  
+    } 
+};
 
 adding_operator: T_PLUS
+{
+    $$ = $1;
+}
                | T_MINUS
+{
+    $$ = $1;
+}
                | T_OR
-;
+{
+    $$ = $1;
+};
 
 term: factor star_multiplying_operator_factor
 ;
@@ -445,8 +481,17 @@ multiplying_operator: T_TIMES
 ;
 
 factor: constant
+{
+    $$ = $1;
+}
       | T_LBRACKET expression T_RBRACKET
+{
+    $$ = $2;
+}
       | T_NOT factor
+{
+    $$ = EXPR_RETURN(T_INVALID, $2, $1);
+}
 ;
 
 variable_access: T_ID 
@@ -461,8 +506,19 @@ variable_access: T_ID
 };
 
 constant: T_INT_CONST
+{
+    $$ = T_INTEGER;
+}
         | T_REAL_CONST
+{
+    $$ = T_REAL;
+} 
         | T_BOOLEAN_CONST
+{
+    $$ = T_BOOLEAN;
+} 
         | variable_access
-;
+{
+    $$ = $1;
+};
 %%
