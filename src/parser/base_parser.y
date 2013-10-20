@@ -386,23 +386,25 @@ procedure_statement: T_ID opt_brc_actual_parameter_list_brc
     {
         if ($2->parameter_list->length > 0)
         {
-            fprintf(stderr, "Error: Procedure %s has void signature, but is being passed parameters",
+            fprintf(stderr, "Error: Procedure %s has void signature, but is being passed parameters\n",
                     secondary_tokens[$1]);
             YYERROR;
         }
     }
     else
     {
+        printf("\nLENGTHS: EXPECTED: %d, PASSED %d\n", $2->parameter_list->length, proc_symrec->parameter_list->length);
         if ($2->parameter_list->length == 0)
         {
-            fprintf(stderr, "Error: Procedure %s does not have void signature, but is being passed no parameters",
+            fprintf(stderr, "Error: Procedure %s does not have void signature, but is being passed no parameters\n",
                     secondary_tokens[$1]);
             YYERROR;
         }
         if ($2->parameter_list->length != proc_symrec->parameter_list->length)
         {
-            fprintf(stderr, "Error: Procedure call for %s is not passing the right amount of parameters, expected %ld, got %ld", 
+            fprintf(stderr, "Error: Procedure call for %s is not passing the right amount of parameters, expected %ld, got %ld\n", 
                     secondary_tokens[$1], proc_symrec->parameter_list->length, proc_symrec->parameter_list->length);
+            YYERROR;
         }
     }
     
