@@ -160,8 +160,7 @@ constant_definition: T_ID T_EQ T_INT_CONST T_SEMICOLON
         fprintf(stderr, "Redefinition of symbol '%s'.\n", secondary_tokens[$1]);
         YYERROR; 
     }
-} 
-;
+};
 
 variable_definition_part: T_VAR plus_variable_definition
 ;
@@ -370,6 +369,11 @@ assignment_statement: variable_access T_ASSIGN expression
     if (s->spec != VAR && s->spec != PARAM)
     {
         fprintf(stderr, "ERROR: Assignment to non-lvalue '%s'.\n", secondary_tokens[$1]);
+        YYERROR;
+    }
+    if (!COMPATIBLE(s->type, $3))
+    {
+        fprintf(stderr, "ERROR: Incompatible assignment to variable '%s'.\n", secondary_tokens[$1]);
         YYERROR;
     }
 };
