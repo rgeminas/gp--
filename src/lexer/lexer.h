@@ -12,6 +12,9 @@ extern STATE_MACHINE* _sm;
 extern STATE_MACHINE* _wssm; 
 extern FILE* _f;
 
+void
+print_location();
+
 TOKEN
 skip_nontokens_file(FILE* file,
                     STATE_MACHINE* sm);

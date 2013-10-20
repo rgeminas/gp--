@@ -95,7 +95,7 @@ such as allocating memory space;
 
 %type<record> formal_parameter_list opt_brc_formal_parameter_list_brc procedure_block variable_group star_comma_id parameter_definition star_smc_parameter_definition opt_brc_actual_parameter_list_brc actual_parameter_list star_comma_actual_parameter
 %type<expr> star_adding_operator_term star_multiplying_operator_factor opt_relational_operator_simple_expression
-%type<id> T_ID variable_access type factor expression term adding_operator constant simple_expression relational_operator multiplying_operator actual_parameter T_PLUS T_MINUS T_OR T_NOT T_TIMES T_DIV T_AND T_DIVIDE T_MOD T_LT T_LEQ T_EQ T_DIF T_GT T_GEQ
+%type<id> T_ID variable_access type factor expression term adding_operator constant simple_expression relational_operator multiplying_operator actual_parameter
 %type<int_const> T_INT_CONST T_BOOLEAN_CONST
 %type<real_const> T_REAL_CONST
 
@@ -137,7 +137,8 @@ constant_definition: T_ID T_EQ T_INT_CONST T_SEMICOLON
     u.int_const = $3;
     if (const_declare($1, u, T_INT_CONST) == NULL) 
     {
-        fprintf(stderr, "Redefinition of symbol '%s'.\n", secondary_tokens[$1]);
+        fprintf(stderr, "ERROR: Redefinition of symbol '%s' ", secondary_tokens[$1]);
+        print_location();
         YYERROR; 
     }
 } 
@@ -147,7 +148,8 @@ constant_definition: T_ID T_EQ T_INT_CONST T_SEMICOLON
     u.real_const = $3;
     if (const_declare($1, u, T_REAL_CONST) == NULL) 
     {
-        fprintf(stderr, "Redefinition of symbol '%s'.\n", secondary_tokens[$1]);
+        fprintf(stderr, "ERROR: Redefinition of symbol '%s' ", secondary_tokens[$1]);
+        print_location();
         YYERROR; 
     }
 } 
@@ -157,7 +159,8 @@ constant_definition: T_ID T_EQ T_INT_CONST T_SEMICOLON
     u.int_const = $3;
     if (const_declare($1, u, T_BOOLEAN_CONST) == NULL) 
     {
-        fprintf(stderr, "Redefinition of symbol '%s'.\n", secondary_tokens[$1]);
+        fprintf(stderr, "ERROR: Redefinition of symbol '%s' ", secondary_tokens[$1]);
+        print_location();
         YYERROR; 
     }
 };
@@ -203,7 +206,8 @@ variable_group: T_ID star_comma_id T_COLON type
     }
     else
     {
-        fprintf(stderr, "Multiple declarations of the same symbol '%s'.\n", secondary_tokens[$1]);
+        fprintf(stderr, "ERROR: Multiple declarations of the same symbol '%s' ", secondary_tokens[$1]);
+        print_location();
         YYERROR;
     }
 };
@@ -231,7 +235,8 @@ star_comma_id:
     }
     else
     {
-        fprintf(stderr, "Multiple declarations of the same symbol '%s'.\n", secondary_tokens[$2]);
+        fprintf(stderr, "ERROR: Multiple declarations of the same symbol '%s' ", secondary_tokens[$2]);
+        print_location();
         YYERROR;
     }
 };
@@ -299,8 +304,9 @@ formal_parameter_list: parameter_definition star_smc_parameter_definition
         if (k != NULL)
         {
             ret = 0;
-            fprintf(stderr, "\nERROR: Definition of multiple parameters with the same identifier %s.\n", 
+            fprintf(stderr, "ERROR: Definition of multiple parameters with the same identifier %s ", 
                     secondary_tokens[darray_get($2->parameter_list, i)->id]);
+            print_location();
             break;
         }
         darray_push_back($1->parameter_list, darray_get($2->parameter_list, i));
@@ -344,7 +350,8 @@ star_smc_parameter_definition:
     $$->parameter_list = $2->parameter_list;
     if (!ret)
     {
-        fprintf(stderr, "\nERROR: Multiple parameters with the same name in the definition of a procedure.\n");
+        fprintf(stderr, "\nERROR: Multiple parameters with the same name in the definition of a procedure ");
+        print_location();
     }
     free($3->parameter_list);
     if (!ret) YYERROR;
@@ -368,12 +375,14 @@ assignment_statement: variable_access T_ASSIGN expression
     symrec* s = search_in_any_scope($1);
     if (s->spec != VAR && s->spec != PARAM)
     {
-        fprintf(stderr, "ERROR: Assignment to non-lvalue '%s'.\n", secondary_tokens[$1]);
+        fprintf(stderr, "ERROR: Assignment to non-lvalue '%s' ", secondary_tokens[$1]);
+        print_location();
         YYERROR;
     }
     if (!COMPATIBLE(s->type, $3))
     {
-        fprintf(stderr, "ERROR: Incompatible assignment to variable '%s'.\n", secondary_tokens[$1]);
+        fprintf(stderr, "ERROR: Cannot coerce expression into variable '%s' ", secondary_tokens[$1]);
+        print_location();
         YYERROR;
     }
 };
@@ -383,15 +392,17 @@ procedure_statement: T_ID opt_brc_actual_parameter_list_brc
     symrec* proc_symrec = search_in_any_scope($1);
     if (proc_symrec == NULL || proc_symrec->spec != PROCEDURE)
     {
-        fprintf(stderr, "ERROR: Undefined procedure '%s'\n", secondary_tokens[$1]);
+        fprintf(stderr, "ERROR: Undefined procedure '%s' ", secondary_tokens[$1]);
+        print_location();
         YYERROR;
     }
     if (proc_symrec->parameter_list->length == 0)
     {
         if ($2->parameter_list->length > 0)
         {
-            fprintf(stderr, "Error: Procedure %s has void signature, but is being passed parameters\n",
+            fprintf(stderr, "ERROR: Procedure '%s' has void signature, but is being passed parameters ",
                     secondary_tokens[$1]);
+            print_location();
             YYERROR;
         }
     }
@@ -399,22 +410,24 @@ procedure_statement: T_ID opt_brc_actual_parameter_list_brc
     {
         if ($2->parameter_list->length == 0)
         {
-            fprintf(stderr, "Error: Procedure %s does not have void signature, but is being passed no parameters\n",
+            fprintf(stderr, "ERROR: Procedure '%s' does not have void signature, but is being passed no parameters ",
                     secondary_tokens[$1]);
+            print_location();
             YYERROR;
         }
         if ($2->parameter_list->length != proc_symrec->parameter_list->length)
         {
-            fprintf(stderr, "Error: Procedure call for %s is not passing the right amount of parameters, expected %ld, got %ld\n", 
+            fprintf(stderr, "ERROR: Procedure call for '%s' is not passing the right amount of parameters, expected '%ld', got '%ld' ", 
                     secondary_tokens[$1], proc_symrec->parameter_list->length, $2->parameter_list->length);
+            print_location();
             YYERROR;
         }
         for (size_t i = 0; i < proc_symrec->parameter_list->length; i++)
         {
-            //fprintf(stderr, "\nPARAMETER: %s, TYPE: %d, RECEIVED: %d", secondary_tokens[darray_get(proc_symrec->parameter_list, i)->id], darray_get(proc_symrec->parameter_list, i)->type, darray_get($2->parameter_list, i)->type);
             if (!COMPATIBLE(darray_get(proc_symrec->parameter_list, i)->type, darray_get($2->parameter_list, i)->type))
             {
-                fprintf(stderr, "Error: Cannor coerce expression into parameter %s\n", secondary_tokens[darray_get(proc_symrec->parameter_list, i)->id]);
+                fprintf(stderr, "ERROR: Cannot coerce expression into parameter '%s' ", secondary_tokens[darray_get(proc_symrec->parameter_list, i)->id]);
+                print_location();
                 YYERROR;
             }
         }
@@ -463,8 +476,7 @@ star_comma_actual_parameter:
     s->spec = PARAM;
     s->type = $2;
     darray_push_front($$->parameter_list, s);
-}
-;
+};
 
 actual_parameter: expression { $$ = $1; }
 ;
@@ -473,29 +485,29 @@ if_statement: T_IF expression T_THEN statement
 {
     if ($2 != T_BOOLEAN) 
     {
-        fprintf(stderr, "Expression does not have boolean type.");
+        fprintf(stderr, "ERROR: Expression does not have boolean type ");
+        print_location();
         YYERROR;
     }
-    // Check that expression has bool type
 }
             | T_IF expression T_THEN statement T_ELSE statement
 {
     if ($2 != T_BOOLEAN)
     {
-        fprintf(stderr, "Expression does not have boolean type.");
+        fprintf(stderr, "ERROR: Expression does not have boolean type ");
+        print_location();
         YYERROR;
     }
-    // Check that expression has bool type
 };
 
 while_statement: T_WHILE expression T_DO statement
 {
     if ($2 != T_BOOLEAN)
     {
-        fprintf(stderr, "Expression does not have boolean type.");
+        fprintf(stderr, "ERROR: Expression does not have boolean type ");
+        print_location();
         YYERROR;
     }
-    // Check that expression has bool type
 };
 
 
@@ -515,7 +527,8 @@ expression: simple_expression opt_relational_operator_simple_expression
         //printf("\n\nRESULT IS %d\n\n", $$);
         if ($$ == T_INVALID) 
         {
-            fprintf(stderr, "Unable to operate operands\n");
+            fprintf(stderr, "ERROR: Unable to operate operands ");
+            print_location();
             YYERROR;
         }
     }
@@ -523,8 +536,7 @@ expression: simple_expression opt_relational_operator_simple_expression
     {
         $$ = $1;
     }
-}
-;
+};
 
 opt_relational_operator_simple_expression: 
 {
@@ -535,8 +547,7 @@ opt_relational_operator_simple_expression:
 { 
     $$.operation = $1;
     $$.term_type = $2;
-}
-;
+};
 
 relational_operator: T_LT { $$ = T_LT; }
                    | T_EQ { $$ = T_EQ; }
@@ -544,7 +555,6 @@ relational_operator: T_LT { $$ = T_LT; }
                    | T_LEQ { $$ = T_LEQ; }
                    | T_DIF { $$ = T_DIF; }
                    | T_GEQ { $$ = T_GEQ; }
-
 ;
 
 simple_expression: sign_operator term star_adding_operator_term
@@ -554,7 +564,8 @@ simple_expression: sign_operator term star_adding_operator_term
         $$ = EXPR_RETURN($2, $3.term_type, $3.operation);
         if ($$ == T_INVALID)
         {
-            fprintf(stderr, "Unable to operate operands\n");
+            fprintf(stderr, "ERROR: Unable to operate operands ");
+            print_location();
             YYERROR;
         }
     }
@@ -570,7 +581,8 @@ simple_expression: sign_operator term star_adding_operator_term
         $$ = EXPR_RETURN($1, $2.term_type, $2.operation);
         if ($$ == T_INVALID)
         {
-            fprintf(stderr, "Unable to operate operands\n");
+            fprintf(stderr, "ERROR: Unable to operate operands ");
+            print_location();
             YYERROR;
         }
     }
@@ -597,7 +609,8 @@ star_adding_operator_term:
         $$.term_type = EXPR_RETURN($2, $3.term_type, $3.operation);
         if ($$.term_type == T_INVALID)
         {
-            fprintf(stderr, "Unable to operate operands\n");
+            fprintf(stderr, "ERROR: Unable to operate operands ");
+            print_location();
             YYERROR;
         }
     }
@@ -630,7 +643,8 @@ term: factor star_multiplying_operator_factor
         //printf("\n\nRESULT IS %d\n\n", $$);
         if ($$ == T_INVALID)
         {
-            fprintf(stderr, "Unable to operate operands\n");
+            fprintf(stderr, "ERROR: Unable to operate operands ");
+            print_location();
             YYERROR;
         }
     }
@@ -638,8 +652,7 @@ term: factor star_multiplying_operator_factor
     {
         $$ = $1;
     }
-}
-;
+};
 
 star_multiplying_operator_factor:
 {
@@ -654,7 +667,8 @@ star_multiplying_operator_factor:
         $$.term_type = EXPR_RETURN($2, $3.term_type, $3.operation);
         if ($$.term_type == T_INVALID)
         {
-            fprintf(stderr, "Unable to operate operands\n");
+            fprintf(stderr, "ERROR: Unable to operate operands ");
+            print_location();
             YYERROR;
         }
     }
@@ -662,8 +676,7 @@ star_multiplying_operator_factor:
     {
         $$.term_type = $2;
     }
-}
-;
+};
 
 multiplying_operator: T_TIMES { $$ = T_TIMES; } 
                     | T_DIV { $$ = T_DIV; }
@@ -682,10 +695,11 @@ factor: constant
 }
       | T_NOT factor
 {
-    $$ = EXPR_RETURN(T_INVALID, $2, $1);
+    $$ = EXPR_RETURN(T_INVALID, $2, T_NOT);
     if ($$ == T_INVALID)
     {
-        fprintf(stderr, "Unable to operate %s.\n", secondary_tokens[$1]);
+        fprintf(stderr, "ERROR: Unable to execute operation ");
+        print_location();
         YYERROR;
     }
 };
@@ -696,7 +710,8 @@ variable_access: T_ID
     symrec* s = search_in_any_scope($1);
     if (s == NULL)
     {
-        fprintf(stderr, "Use of undeclared identifier '%s'.\n", secondary_tokens[$1]);
+        fprintf(stderr, "ERROR: Use of undeclared identifier '%s' ", secondary_tokens[$1]);
+        print_location();
         YYERROR;
     }
 };

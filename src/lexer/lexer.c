@@ -31,6 +31,14 @@ char** secondary_tokens;
 size_t sec_alloc = 1;
 size_t sec_i = 0;
 
+unsigned int f_line = 1;
+unsigned int f_column = 1;
+
+void 
+print_location()
+{
+    fprintf(stderr, "on line %d.\n", f_line);
+}
 
 TOKEN
 skip_nontokens_file(FILE* file,
@@ -59,10 +67,20 @@ skip_nontokens_file(FILE* file,
         }
         if (execute_transition(sm, c))
         {
+            
             // If execute_transition fails, we went through more characters than needed.
             // Go back one position in the file, and return the code of the current state.
             fseek(file, last_position, SEEK_SET);
             break;
+        }
+        if (c == '\n')
+        {
+            f_line++;
+            f_column = 0;
+        }
+        else
+        {
+            f_column++;
         }
         penultimate_position = last_position;
         last_position = ftell(file);
@@ -75,6 +93,7 @@ skip_nontokens_file(FILE* file,
     }
     if (ret == T_REWIND_ONE)
     {
+        f_column--;
         fseek(file, penultimate_position, SEEK_SET);
     }
     reset_machine(sm);
@@ -115,6 +134,16 @@ next_token_file(FILE* file,
             --i;
             fseek(file, last_position, SEEK_SET);
             break;
+        }
+
+        if (c == '\n')
+        {
+            f_line++;
+            f_column = 0;
+        }
+        else
+        {
+            f_column++;
         }
 
         if (i + 1 >= allocated)
