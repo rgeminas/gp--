@@ -13,7 +13,7 @@ Usage: $./gp-- source_file.pa
 
 Current State
 -------------
-Currently, lexing, parsing and scope checks are complete, though code generation doesn't happen yet and type checking is still not complete.
+Currently, lexing, parsing, scope and type checks are complete, though code generation doesn't happen yet.
 
 Lexer
 -----
