@@ -418,6 +418,9 @@ opt_brc_actual_parameter_list_brc:
 }
                                  | T_LBRACKET actual_parameter_list T_RBRACKET
 {
+    $$ = (symrec*) malloc(sizeof(symrec));
+    $$->id = -1;
+    $$->spec = PARAMLIST;
     $$->parameter_list = $2->parameter_list;
 };
 
