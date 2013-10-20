@@ -34,7 +34,7 @@ program HelloWorld;
     begin
         g := true or d;
         ProcedureWithNoParams;
-        ProcedureWithParams(a, b + c, c, e, f, g)
+        ProcedureWithParams(a, b + c, c * 2, e, f, h)
     end;
 begin
     h:=3

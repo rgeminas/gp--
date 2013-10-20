@@ -393,7 +393,6 @@ procedure_statement: T_ID opt_brc_actual_parameter_list_brc
     }
     else
     {
-        printf("\nLENGTHS: EXPECTED: %d, PASSED %d\n", $2->parameter_list->length, proc_symrec->parameter_list->length);
         if ($2->parameter_list->length == 0)
         {
             fprintf(stderr, "Error: Procedure %s does not have void signature, but is being passed no parameters\n",
@@ -403,8 +402,17 @@ procedure_statement: T_ID opt_brc_actual_parameter_list_brc
         if ($2->parameter_list->length != proc_symrec->parameter_list->length)
         {
             fprintf(stderr, "Error: Procedure call for %s is not passing the right amount of parameters, expected %ld, got %ld\n", 
-                    secondary_tokens[$1], proc_symrec->parameter_list->length, proc_symrec->parameter_list->length);
+                    secondary_tokens[$1], proc_symrec->parameter_list->length, $2->parameter_list->length);
             YYERROR;
+        }
+        for (size_t i = 0; i < proc_symrec->parameter_list->length; i++)
+        {
+            //fprintf(stderr, "\nPARAMETER: %s, TYPE: %d, RECEIVED: %d", secondary_tokens[darray_get(proc_symrec->parameter_list, i)->id], darray_get(proc_symrec->parameter_list, i)->type, darray_get($2->parameter_list, i)->type);
+            if (!COMPATIBLE(darray_get(proc_symrec->parameter_list, i)->type, darray_get($2->parameter_list, i)->type))
+            {
+                fprintf(stderr, "Error: Cannor coerce expression into parameter %s\n", secondary_tokens[darray_get(proc_symrec->parameter_list, i)->id]);
+                YYERROR;
+            }
         }
     }
     
