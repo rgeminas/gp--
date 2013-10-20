@@ -22,7 +22,6 @@ typedef struct symrec
     int type; // Among T_BOOLEAN, T_INTEGER, T_REAL. Bite me.
     YYSTYPE value; // This is never going to be a symrec
     struct darray_symrec* parameter_list; // Linked list of parameters. Order is only important for parameter lists
-    int order; // Only relevant for PARAM.
 } symrec;
 
 // START OF DARRAY FUNCTIONS

@@ -2,12 +2,13 @@
  Definition of tokens returned by the lexical analysis compiler pass.
 */
 
-#ifndef __TOKEN_H
-#define __TOKEN_H
-
 #include <stdlib.h>
 // Include bison generated tokens.
 #include "parser/base_parser.h"
+
+#ifndef __TOKEN_H
+#define __TOKEN_H
+
 
 #define TOKEN_TYPE int
 

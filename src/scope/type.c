@@ -1,10 +1,7 @@
 #include "scope/type.h"
 #include "scope/symrec.h"
+
 #include "parser/base_parser.h"
-
-
-
-
 
 //
 // Initializes invalid values for all tokens that aren't types/operators
@@ -34,6 +31,17 @@ void initialize_type_tables()
         operator_table[system_operators[i]] = i;
     }
 
+    COMPATIBLE(T_INTEGER, T_INTEGER) = 1;  
+    COMPATIBLE(T_INTEGER, T_REAL) = 1;  
+    COMPATIBLE(T_INTEGER, T_BOOLEAN) = 1;  
+
+    COMPATIBLE(T_REAL, T_INTEGER) = 1;  
+    COMPATIBLE(T_REAL, T_REAL) = 1;  
+    COMPATIBLE(T_REAL, T_BOOLEAN) = 1;  
+
+    COMPATIBLE(T_BOOLEAN, T_INTEGER) = 1;  
+    COMPATIBLE(T_BOOLEAN, T_REAL) = 1;  
+    COMPATIBLE(T_BOOLEAN, T_BOOLEAN) = 1;  
     // Defining hardcoded returns for every expression ever.
 
     // +
