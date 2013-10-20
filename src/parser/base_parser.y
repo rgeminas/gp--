@@ -493,9 +493,9 @@ expression: simple_expression opt_relational_operator_simple_expression
 {
     if ($2.operation != T_INVALID)
     {
-        printf("\n\n%d REL %d, OP IS %d\n\n", $1, $2.term_type, $2.operation);
+        //printf("\n\n%d REL %d, OP IS %d\n\n", $1, $2.term_type, $2.operation);
         $$ = EXPR_RETURN($1, $2.term_type, $2.operation);
-        printf("\n\nRESULT IS %d\n\n", $$);
+        //printf("\n\nRESULT IS %d\n\n", $$);
         if ($$ == T_INVALID) 
         {
             fprintf(stderr, "Unable to operate operands\n");
@@ -608,9 +608,9 @@ term: factor star_multiplying_operator_factor
 {
     if ($2.operation != T_INVALID && $2.term_type != T_INVALID)
     {
-        printf("\n\n%d OPERATED WITH %d, OP IS %d\n\n", $1, $2.term_type, $2.operation);
+        //printf("\n\n%d OPERATED WITH %d, OP IS %d\n\n", $1, $2.term_type, $2.operation);
         $$ = EXPR_RETURN($1, $2.term_type, $2.operation);
-        printf("\n\nRESULT IS %d\n\n", $$);
+        //printf("\n\nRESULT IS %d\n\n", $$);
         if ($$ == T_INVALID)
         {
             fprintf(stderr, "Unable to operate operands\n");
