@@ -1,3 +1,8 @@
+/*
+ * Generic dynamic array ready for inclusion.
+ *
+ * Usage: 
+*/
 #include <stddef.h>
 #ifndef __DARRAY_H
 #define __DARRAY_H
@@ -7,7 +12,7 @@
 #define DARRAY_TYPEDECL(name, type) \
 typedef struct darray_##name \
 { \
-    type** base; \
+    type* base; \
     size_t allocated_mem; \
     size_t length; \
 } darray_##name; 
@@ -17,7 +22,7 @@ static darray_##name* \
 darray_init_##name() \
 { \
     darray_##name* arr = (darray_##name*) malloc(sizeof(darray_##name)); \
-    arr->base = (type**) malloc(sizeof(type*)); \
+    arr->base = (type*) malloc(sizeof(type)); \
     arr->length = 0; \
     arr->allocated_mem = 1; \
     return arr; \
@@ -29,18 +34,18 @@ darray_memcheck_##name(darray_##name* arr) \
     if (arr->length == arr->allocated_mem) \
     { \
         arr->allocated_mem <<= 1; \
-        arr->base = (type**) realloc(arr->base, arr->allocated_mem * sizeof(type*)); \
+        arr->base = (type*) realloc(arr->base, arr->allocated_mem * sizeof(type)); \
     } \
     if (arr->length < (arr->allocated_mem >> 1)) \
     { \
         arr->allocated_mem >>= 1; \
-        arr->base = (type**) realloc(arr->base, arr->allocated_mem * sizeof(type*)); \
+        arr->base = (type*) realloc(arr->base, arr->allocated_mem * sizeof(type)); \
     } \
 } \
  \
 static void  \
 darray_push_back_##name(darray_##name* arr,  \
-           type* s) \
+           type s) \
 { \
     arr->base[arr->length++] = s; \
     darray_memcheck_##name(arr); \
@@ -50,12 +55,12 @@ darray_push_back_##name(darray_##name* arr,  \
 /* after it's presented to the professor */\
 static void  \
 darray_push_front_##name(darray_##name* arr,  \
-                  type* s) \
+                  type s) \
 { \
-    type* temp = darray_get(arr, 0); \
+    type temp = darray_get(arr, 0); \
     for (size_t i = 0; i < arr->length; i++) \
     { \
-        type* temp2 = darray_get(arr, i+1); \
+        type temp2 = darray_get(arr, i+1); \
         darray_get(arr, i+1) = temp; \
         temp = temp2; \
     } \

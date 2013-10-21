@@ -23,9 +23,9 @@ typedef enum { CONST, VAR, PROCEDURE, PARAM, PARAMLIST } species;
 // A generic one. A fucking awesome one like khash.
 // Before that, change this into a deque.
 
-DARRAY_TYPEDECL(symrec, struct symrec)
+DARRAY_TYPEDECL(symrec, struct symrec*)
 
-DARRAY_IMPL(symrec, struct symrec)
+DARRAY_IMPL(symrec, struct symrec*)
 
 typedef struct symrec
 {
