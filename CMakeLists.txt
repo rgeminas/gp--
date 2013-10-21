@@ -40,6 +40,7 @@ set (HEADERS
     ${src}/lexer/lexer.h
     ${src}/lexer/token.h
     ${src}/scope/symrec.h
+    ${src}/scope/darray.h
     ${src}/scope/type.h
     ${src}/portability/portability.h
     )
@@ -78,6 +79,7 @@ if(MSVC)
                  ${src}/scope/symrec.h
                  ${src}/scope/type.h
                  ${src}/scope/khash.h
+                 ${src}/scope/darray.h
                  )
     source_group (sources FILES ${src}/main.c)
     source_group (sources\\state_machine FILES ${src}/state_machine/state_machine.c)

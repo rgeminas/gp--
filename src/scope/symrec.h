@@ -1,11 +1,12 @@
 #ifndef __SYMREC_H
 #define __SYMREC_H
 
+#include "scope/darray.h"
 #include "scope/khash.h"
 #include "parser/base_parser.h"
 // Forward declaration.
 struct symrec;
-struct darray_symrec;
+//struct darray_symrec;
 
 // "declaration" of hashtable type
 KHASH_MAP_INIT_INT(id, struct symrec*)
@@ -15,6 +16,17 @@ typedef enum { CONST, VAR, PROCEDURE, PARAM, PARAMLIST } species;
 // type is one of: T_INTEGER, T_REAL, T_BOOL, 0 (for procedure declarations)
 // parameter list is only there in procedures with non-void signatures
 // id is retrieved from yylval. value is only set if spec == CONST.
+
+// START OF DARRAY FUNCTIONS
+
+// TODO: Change this into my own darray class.
+// A generic one. A fucking awesome one like khash.
+// Before that, change this into a deque.
+
+DARRAY_TYPEDECL(symrec, struct symrec)
+
+DARRAY_IMPL(symrec, struct symrec)
+
 typedef struct symrec
 {
     species spec; 
@@ -24,41 +36,9 @@ typedef struct symrec
     struct darray_symrec* parameter_list; // Linked list of parameters. Order is only important for parameter lists
 } symrec;
 
-// START OF DARRAY FUNCTIONS
-
-// TODO: Change this into my own darray class.
-// A generic one. A fucking awesome one like khash.
-// Before that, change this into a deque.
-typedef struct darray_symrec
-{
-    symrec** base;
-    //symrec** start;
-    //symrec** end;
-    size_t allocated_mem;
-    size_t length;
-} darray_symrec;
-
-darray_symrec* 
-darray_init();
-
-void 
-darray_push_back(darray_symrec*, 
-                 symrec*);
-
-void
-darray_push_front(darray_symrec*,
-                  symrec*);
-
-void 
-darray_remove(darray_symrec*, 
-              size_t);
-
 symrec*
-darray_find_id(darray_symrec*,
-               int);
-
-#define darray_get(arr, i) ((arr)->base[(i)])
-
+darray_find_id(darray_symrec* arr,
+               int id);
 // END OF DARRAY FUNCTIONS
 
 // This struct is basically a backwards linked list of hashtables. I thought of 
