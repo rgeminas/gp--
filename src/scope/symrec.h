@@ -82,8 +82,4 @@ proc_declare(int id);
 //    operator +=(...)
 // Fortunately, this isn't C++.
 //
-khash_t(id)* 
-operator_plus_assign(khash_t(id)* h1,
-                     khash_t(id)* h2,
-                     int* ret);
 #endif

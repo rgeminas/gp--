@@ -27,7 +27,7 @@ int main(void)
    return 0;
 }
 */
-#include <stddef.h_>
+#include <stddef.h>
 #ifndef __DARRAY_H
 #define __DARRAY_H
 
