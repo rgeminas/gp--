@@ -1,5 +1,5 @@
 /*
- Generic dynamic array ready for inclusion.
+ Generic dynamic array function and structure generator.
 
  Usage:
 
@@ -27,7 +27,7 @@ int main(void)
    return 0;
 }
 */
-#include <stddef.h>
+#include <stddef.h_>
 #ifndef __DARRAY_H
 #define __DARRAY_H
 
@@ -42,7 +42,12 @@ int main(void)
 #define darray_remove(id) darray_remove_##id
 #define darray_free(id) darray_remove_##id
 
-// This is what you should use to define the generic type.
+// This is ithe macro you should use to define the generic type.
+// * 'name' is how you refer to the darray type, for example,
+//     you can't set name to be int*, because that doesn't fit
+//     into a function identifier.
+// * 'type' is the proper type in the container.
+//
 #define DARRAY_DEFINE(name, type) \
     DARRAY_TYPEDECL(name, type) \
     DARRAY_IMPL(name, type)
