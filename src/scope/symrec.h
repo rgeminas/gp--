@@ -8,24 +8,11 @@
 struct symrec;
 //struct darray_symrec;
 
-// "declaration" of hashtable type
+// "declaration" of hashtable and darray types
 KHASH_MAP_INIT_INT(id, struct symrec*)
+DARRAY_DEFINE(symrec, struct symrec*)
 
 typedef enum { CONST, VAR, PROCEDURE, PARAM, PARAMLIST } species;
-
-// type is one of: T_INTEGER, T_REAL, T_BOOL, 0 (for procedure declarations)
-// parameter list is only there in procedures with non-void signatures
-// id is retrieved from yylval. value is only set if spec == CONST.
-
-// START OF DARRAY FUNCTIONS
-
-// TODO: Change this into my own darray class.
-// A generic one. A fucking awesome one like khash.
-// Before that, change this into a deque.
-
-DARRAY_TYPEDECL(symrec, struct symrec*)
-
-DARRAY_IMPL(symrec, struct symrec*)
 
 typedef struct symrec
 {
@@ -33,7 +20,7 @@ typedef struct symrec
     size_t id; // 2ndary token
     int type; // Among T_BOOLEAN, T_INTEGER, T_REAL. Bite me.
     YYSTYPE value; // This is never going to be a symrec
-    struct darray_symrec* parameter_list; // Linked list of parameters. Order is only important for parameter lists
+    struct darray_symrec* parameter_list; // Dynamic array of function parameters.
 } symrec;
 
 symrec*
