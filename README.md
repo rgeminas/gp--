@@ -21,4 +21,6 @@ The lexer uses a custom simple state machine implementation, and constructs a to
 
 Parser
 ------
-The parser is an LALR(1) parser written using bison. We use khash to construct the symbol tables.
+The parser is an LALR(1) parser written using bison. We use [khash][1], by attractive chaos to construct the symbol tables.
+
+[1]: https://github.com/attractivechaos/klib
