@@ -5,7 +5,7 @@ Introduction
 ------------
 gp-- (Gemignani's Pascal-- Compiler) is a compiler for a restricted subset of Pascal (named Pascal--) outputting x86 assembly code, written as an exercise for the Compilers class for the Computer Engineering course taught by professor Alex Garcia in the Military Institute of Engineering (IME) in Spring/2013.
 
-Installation and usage
+Installation and Usage
 ----------------------
 To compile gp--, you must have cmake and bison installed and a C99-compatible compiler (MSVC, notably, doesn't provide C99 support, but we intend to support it regardless by compiling gp-- with C++ under MSVC).
 
