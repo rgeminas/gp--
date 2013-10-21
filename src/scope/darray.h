@@ -1,13 +1,51 @@
 /*
- * Generic dynamic array ready for inclusion.
- *
- * Usage: 
+ Generic dynamic array ready for inclusion.
+
+ Usage:
+
+DARRAY_DEFINE(int32, int)
+
+int main(void)
+{
+   darray(int32)* arr = darray_init(int32)();
+
+   darray_push_back(int32)(arr, 5);
+   darray_push_back(int32)(arr, 6);
+
+   darray_push_front(int32)(arr, 4);
+   darray_push_front(int32)(arr, 3);
+
+   darray_remove(int32)(arr, 1);
+
+   printf("%d", darray_get_at(int32)(arr, 2)); // 5
+
+   darray_get_at(int32)(arr, 2) = 8;
+
+   printf("%d", darray_get_at(int32)(arr, 2)); // 8 
+
+   darray_free(int32)(arr);
+   return 0;
+}
 */
 #include <stddef.h>
 #ifndef __DARRAY_H
 #define __DARRAY_H
 
+#define darray_get_at(id) darray_get
 #define darray_get(arr, i) ((arr)->base[(i)]) 
+
+// Function aliases to look like C++ templates.
+#define darray(id) darray_##id
+#define darray_init(id) darray_init_##id
+#define darray_push_back(id) darray_push_back_##id
+#define darray_push_front(id) darray_push_front_##id
+#define darray_remove(id) darray_remove_##id
+#define darray_free(id) darray_remove_##id
+
+// This is what you should use to define the generic type.
+#define DARRAY_DEFINE(name, type) \
+    DARRAY_TYPEDECL(name, type) \
+    DARRAY_IMPL(name, type)
 
 #define DARRAY_TYPEDECL(name, type) \
 typedef struct darray_##name \
@@ -26,6 +64,13 @@ darray_init_##name() \
     arr->length = 0; \
     arr->allocated_mem = 1; \
     return arr; \
+} \
+ \
+static void \
+darray_free_##name(darray_##name* arr) \
+{\
+    free(arr->base); \
+    free(arr); \
 } \
  \
 static void  \

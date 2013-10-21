@@ -197,7 +197,7 @@ variable_group: T_ID star_comma_id T_COLON type
         s->id = $1;
         s->parameter_list = NULL;
 
-        darray_push_front_symrec($$->parameter_list, s);
+        darray_push_front(symrec)($$->parameter_list, s);
         // Iterate over symrecs, set type.
         for (size_t i = 0; i < $$->parameter_list->length; i++)
         {
@@ -215,7 +215,7 @@ variable_group: T_ID star_comma_id T_COLON type
 star_comma_id: 
 {
     $$ = (symrec*) malloc(sizeof(symrec));
-    $$->parameter_list = darray_init_symrec();
+    $$->parameter_list = darray_init(symrec)();
 }
              | T_COMMA T_ID star_comma_id
 {
@@ -230,7 +230,7 @@ star_comma_id:
         s->id = $2;
         s->parameter_list = NULL;
 
-        darray_push_front_symrec($$->parameter_list, s);
+        darray_push_front(symrec)($$->parameter_list, s);
         // Type is still undefined!
     }
     else
@@ -280,7 +280,7 @@ procedure_block: T_PROCEDURE T_ID opt_brc_formal_parameter_list_brc T_SEMICOLON
 opt_brc_formal_parameter_list_brc: 
 {
     $$ = (symrec*) malloc(sizeof(symrec));
-    $$->parameter_list = darray_init_symrec();
+    $$->parameter_list = darray_init(symrec)();
 }
                                  | T_LBRACKET formal_parameter_list T_RBRACKET
 {
@@ -309,7 +309,7 @@ formal_parameter_list: parameter_definition star_smc_parameter_definition
             print_location();
             break;
         }
-        darray_push_back_symrec($1->parameter_list, darray_get($2->parameter_list, i));
+        darray_push_back(symrec)($1->parameter_list, darray_get($2->parameter_list, i));
     }
     $$->parameter_list = $1->parameter_list;
     free($2->parameter_list);
@@ -326,7 +326,7 @@ star_smc_parameter_definition:
     $$->id = -1;
     $$->spec = PARAMLIST;
     $$->type = 0; 
-    $$->parameter_list = darray_init_symrec();
+    $$->parameter_list = darray_init(symrec)();
 } 
                              | T_SEMICOLON parameter_definition star_smc_parameter_definition
 {
@@ -345,7 +345,7 @@ star_smc_parameter_definition:
             ret = 0;
             break;
         }
-        darray_push_back_symrec($2->parameter_list, darray_get($3->parameter_list, i));
+        darray_push_back(symrec)($2->parameter_list, darray_get($3->parameter_list, i));
     }
     $$->parameter_list = $2->parameter_list;
     if (!ret)
@@ -441,7 +441,7 @@ opt_brc_actual_parameter_list_brc:
     $$ = (symrec*) malloc(sizeof(symrec));
     $$->id = -1;
     $$->spec = PARAMLIST;
-    $$->parameter_list = darray_init_symrec();
+    $$->parameter_list = darray_init(symrec)();
 }
                                  | T_LBRACKET actual_parameter_list T_RBRACKET
 {
@@ -458,7 +458,7 @@ actual_parameter_list: actual_parameter star_comma_actual_parameter
     s->id = -1;
     s->spec = PARAM;
     s->type = $1;
-    darray_push_front_symrec($$->parameter_list, s);
+    darray_push_front(symrec)($$->parameter_list, s);
 };
 
 star_comma_actual_parameter: 
@@ -466,7 +466,7 @@ star_comma_actual_parameter:
     $$ = (symrec*) malloc(sizeof(symrec));
     $$->id = -1;
     $$->spec = PARAMLIST;
-    $$->parameter_list = darray_init_symrec();
+    $$->parameter_list = darray_init(symrec)();
 }
                            | T_COMMA actual_parameter star_comma_actual_parameter
 {
@@ -475,7 +475,7 @@ star_comma_actual_parameter:
     s->id = -1;
     s->spec = PARAM;
     s->type = $2;
-    darray_push_front_symrec($$->parameter_list, s);
+    darray_push_front(symrec)($$->parameter_list, s);
 };
 
 actual_parameter: expression { $$ = $1; }

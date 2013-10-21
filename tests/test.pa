@@ -32,10 +32,11 @@ program HelloWorld;
         var
             g: integer;
     begin
-        g := true or d;
+        g := ((4 * q) + (a div 2) * alit) mod 15;
         ProcedureWithNoParams;
-        ProcedureWithParams(a, b + c, c * 2, e, f, h)
+        ProcedureWithParams(a, a + 1, qbard * amunzora - alit * 2, e, f, h)
     end;
 begin
-    h:=3
+    h:=3;
+    { q:= q + 2 }
 end.
