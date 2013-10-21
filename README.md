@@ -11,7 +11,7 @@ To compile gp--, you must have cmake and bison installed and a C99-compatible co
 
 Usage: $./gp-- source_file.pa [--debug]
 
-Current state
+Current State of the Project
 -------------
 Currently, lexing, parsing, scope and type checks are complete, though code generation doesn't happen yet - Soon(TM).
 
