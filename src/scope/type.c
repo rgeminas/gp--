@@ -3,6 +3,10 @@
 
 #include "parser/base_parser.h"
 
+int return_by_expression[num_types][num_types][num_operators];
+int coercible_types[num_types][num_types];
+int type_table[MAX_TOKEN_ID]; 
+int operator_table[MAX_TOKEN_ID]; 
 //
 // Initializes invalid values for all tokens that aren't types/operators
 // Then, set valid values for usage with EXPR_RETURN.
