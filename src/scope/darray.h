@@ -128,7 +128,7 @@ darray_remove_##name(darray_##name* arr,  \
         if (j == i) continue; \
         else \
         { \
-            arr->base[k] = arr->base[j]; \
+            arr->base[k++] = arr->base[j]; \
         } \
     } \
     arr->length--; \
