@@ -8,6 +8,7 @@ don't define some of the functions used here in their standard libraries.
 
 #if !_MSC_VER
 #  define stricmp strcasecmp
+#  define vsnprintf _vscprintf
 #endif // !_MSC_VER
 
 #endif // __PORTABILITY_H

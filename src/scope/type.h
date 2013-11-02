@@ -7,6 +7,8 @@ typedef struct expression
 {
     int operation;
     int term_type;
+    // Register in which this is being stored.
+    int reg;
 } expression;
 
 #include "parser/base_parser.h"

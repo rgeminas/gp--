@@ -21,6 +21,10 @@ typedef struct symrec
     int type; // Among T_BOOLEAN, T_INTEGER, T_REAL. Bite me.
     YYSTYPE value; // This is never going to be a symrec
     struct darray_symrec* parameter_list; // Dynamic array of function parameters.
+
+    int reg;
+    int bp_off;
+
 } symrec;
 
 symrec*
@@ -76,10 +80,4 @@ var_declare(int id,
 symrec* 
 proc_declare(int id);
 
-// TODO: Take this out of here.
-//
-// If this were C++, this would be called
-//    operator +=(...)
-// Fortunately, this isn't C++.
-//
 #endif

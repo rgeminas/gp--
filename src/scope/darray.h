@@ -31,7 +31,7 @@ int main(void)
 #ifndef __DARRAY_H
 #define __DARRAY_H
 
-#define darray_get_at(id) darray_get
+#define darray_get_at(id, arr, i) darray_get(arr, i)
 #define darray_get(arr, i) ((arr)->base[(i)]) 
 
 // Function aliases to look like C++ templates.

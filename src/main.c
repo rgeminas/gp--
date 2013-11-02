@@ -3,6 +3,7 @@
 #include "portability/portability.h"
 #include "lexer/token.h"
 #include "scope/symrec.h"
+#include "code_gen/stringbuilder.h"
 
 // Bison-defined parsing function.
 extern int yyparse(void);
@@ -24,15 +25,6 @@ extern int yydebug;
 int
 main(int argc, char** argv)
 {
-    //tests start here
-    /*
-    initialize_stack();
-    symrec s = {CONST, 1, T_ID, NULL};
-    add_to_scope(&s);
-    symrec* s2 = search_in_current_scope(1);
-    */
-    //tests end here
-
     yydebug = 0;
     if (argc == 1)
     {
@@ -73,13 +65,9 @@ main(int argc, char** argv)
         }
     }
 
-//#   if !_MSC_VER
-//        _sm = make_full_tokenizer(tokens, sizeof(tokens)/sizeof(*tokens), keywords, sizeof(keywords)/sizeof(*keywords));
-//#   else
-        _sm = make_full_tokenizer(tokens, 22, keywords, 26);
-//#   endif
-
+    _sm = make_full_tokenizer(tokens, 22, keywords, 26);
     _wssm = make_nontoken_skipper(); 
+
     secondary_tokens = (char**) malloc(sizeof(char*));
     
     if (!yyparse())

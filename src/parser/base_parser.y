@@ -23,6 +23,7 @@ extern char** secondary_tokens;
     size_t id;
     struct symrec* record;
     struct expression expr;
+    char* block_code;
 }
 
 %token T_EOF                   0
@@ -313,9 +314,7 @@ formal_parameter_list: parameter_definition star_smc_parameter_definition
     }
     $$->parameter_list = $1->parameter_list;
     free($2->parameter_list);
-    if (!ret)
-    {
-    }
+    
     if (!ret) YYERROR;
 };
 
@@ -432,8 +431,6 @@ procedure_statement: T_ID opt_brc_actual_parameter_list_brc
             }
         }
     }
-    
-    // Check if signature matches once we get expression types straightened out!
 };
 
 opt_brc_actual_parameter_list_brc:
@@ -683,7 +680,7 @@ multiplying_operator: T_TIMES { $$ = T_TIMES; }
                     | T_MOD { $$ = T_MOD; }
                     | T_AND { $$ = T_AND; }
                     | T_DIVIDE { $$ = T_DIVIDE; }
-;
+                    ;
 
 factor: constant
 {

@@ -13,7 +13,7 @@ symrec*
 darray_find_id(darray_symrec* arr,
                int id)
 {
-    for (int i = 0; i < arr->length; i++)
+    for (size_t i = 0; i < arr->length; i++)
     {
         if (darray_get(arr, i)->id == id)
         {
@@ -85,7 +85,6 @@ add_to_scope(symrec* record)
     khash_t(id)* h = scope_stack->kh_table_top;
     // put id in hashtable
     k = kh_put(id, h, record->id, &return_value);
-    symrec* val;
     // associate id to record. It looks weird, but it expands to an lvalue
     kh_value(h, k) = record;
 }
@@ -263,31 +262,4 @@ operator_plus_assign(khash_t(id)* h1,
         }
     }
     return h1;
-}
-
-khash_t(id)* 
-merge_hashes(khash_t(id)* h1, 
-             khash_t(id)* h2)
-{
-    int* ret;
-    khash_t(id)* h = kh_init(id);
-    for (khiter_t k = kh_begin(h1); k != kh_end(h1); ++k)
-    {
-		if (kh_exist(h1, k))
-        {
-            symrec* s = kh_value(h1, k);
-            // Free the symrecs in the parameter list
-            kh_put(id, h, k, ret);
-            if (ret == 0) return NULL;
-        }
-    }
-    for (khiter_t k = kh_begin(h2); k != kh_end(h2); ++k)
-    {
-		if (kh_exist(h2, k))
-        {
-            symrec* s = kh_value(h2, k);
-            // Free the symrecs in the parameter list
-        }
-    }
-    return h;
 }

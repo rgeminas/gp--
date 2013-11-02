@@ -43,6 +43,9 @@ set (HEADERS
     ${src}/scope/darray.h
     ${src}/scope/type.h
     ${src}/portability/portability.h
+    ${src}/code_gen/generator.h
+    ${src}/code_gen/x86.h
+    ${src}/code_gen/stringbuilder.h
     )
 
 set (SOURCES
@@ -53,6 +56,8 @@ set (SOURCES
     ${src}/lexer/lexer.c
     ${src}/scope/symrec.c
     ${src}/scope/type.c
+    ${src}/code_gen/x86.c
+    ${src}/code_gen/stringbuilder.c
     )
 
 if(MSVC)
@@ -69,6 +74,12 @@ if(MSVC)
     source_group (headers\\parser FILES 
                  ${src}/parser/parser.h
                  ${CMAKE_SOURCE_DIR}/${src}/parser/base_parser.h
+                 )
+
+    source_group (headers\\code_gen FILES 
+                 ${src}/code_gen/generator.h
+                 ${src}/code_gen/x86.h
+                 ${src}/code_gen/stringbuilder.h
                  )
 
     source_group (headers\\portability FILES 
@@ -92,6 +103,10 @@ if(MSVC)
                  ${src}/lexer/token.c
                  ${src}/lexer/lexer.c
                  ${src}/lexer/lexical_state_machine.c
+                 )
+    source_group (sources\\code_gen FILES 
+                 ${src}/code_gen/x86.c
+                 ${src}/code_gen/stringbuilder.c
                  )
 endif()
 
