@@ -3,7 +3,7 @@ gp--
 
 Introduction
 ------------
-gp-- (Gemignani's Pascal-- Compiler) is a compiler for a restricted subset of Pascal (named Pascal--) outputting x86 assembly code, written as an exercise for the Compilers class for the Computer Engineering course taught by professor Alex Garcia in the Military Institute of Engineering (IME) in Spring/2013.
+gp-- (Gemignani's Pascal-- Compiler) is a compiler for a restricted subset of Pascal (named Pascal--) outputting x86 assembly code (at first for Linux only), written as an exercise for the Compilers class for the Computer Engineering course taught by professor Alex Garcia in the Military Institute of Engineering (IME) in Spring/2013.
 
 Installation and Usage
 ----------------------
