@@ -3,6 +3,9 @@
 
 #include "parser/base_parser.h"
 
+int system_operators[num_operators] = { T_PLUS, T_MINUS, T_TIMES, T_DIVIDE, T_DIV, T_MOD, T_AND, T_OR, T_NOT, T_EQ, T_DIF, T_LEQ, T_GEQ, T_LT, T_GT};
+char* operators[num_operators] = { "ADD", "SUB", "MUL", "DIV" };
+char* fp_operators[num_operators] = { "FPADD", "FPSUB", "FPMUL", "DIV" };
 int return_by_expression[num_types][num_types][num_operators];
 int coercible_types[num_types][num_types];
 int type_table[MAX_TOKEN_ID]; 
@@ -15,7 +18,6 @@ int operator_table[MAX_TOKEN_ID];
 void initialize_type_tables()
 {
     int system_types[num_types] = { T_INTEGER, T_REAL, T_BOOLEAN, T_INVALID };
-    int system_operators[num_operators] = { T_PLUS, T_MINUS, T_TIMES, T_DIVIDE, T_DIV, T_MOD, T_AND, T_OR, T_NOT, T_EQ, T_DIF, T_LEQ, T_GEQ, T_LT, T_GT};
 
     for (int i = 0; i < MAX_TOKEN_ID; i++)
     {

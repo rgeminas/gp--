@@ -10,6 +10,6 @@ typedef struct generator
     void (*generate_expression_code)(expression, char*);
 } generator;
 
-generator* global_gen;
+extern generator global_gen;
 
 #endif

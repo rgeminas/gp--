@@ -45,6 +45,7 @@ set (HEADERS
     ${src}/portability/portability.h
     ${src}/code_gen/generator.h
     ${src}/code_gen/x86.h
+    ${src}/code_gen/wml.h
     ${src}/code_gen/stringbuilder.h
     )
 
@@ -57,7 +58,9 @@ set (SOURCES
     ${src}/scope/symrec.c
     ${src}/scope/type.c
     ${src}/code_gen/x86.c
+    ${src}/code_gen/wml.c
     ${src}/code_gen/stringbuilder.c
+    ${src}/code_gen/generator.c
     )
 
 if(MSVC)
@@ -79,6 +82,7 @@ if(MSVC)
     source_group (headers\\code_gen FILES 
                  ${src}/code_gen/generator.h
                  ${src}/code_gen/x86.h
+                 ${src}/code_gen/wml.h
                  ${src}/code_gen/stringbuilder.h
                  )
 
@@ -105,7 +109,9 @@ if(MSVC)
                  ${src}/lexer/lexical_state_machine.c
                  )
     source_group (sources\\code_gen FILES 
+                 ${src}/code_gen/generator.c
                  ${src}/code_gen/x86.c
+                 ${src}/code_gen/wml.c
                  ${src}/code_gen/stringbuilder.c
                  )
 endif()

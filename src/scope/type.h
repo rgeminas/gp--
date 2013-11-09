@@ -8,6 +8,7 @@ typedef struct expression
     int operation;
     int term_type;
     // Register in which this is being stored.
+    char* code;
     int reg;
 } expression;
 

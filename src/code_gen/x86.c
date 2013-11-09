@@ -1,15 +1,20 @@
 #include <stdio.h>
 #include <string.h>
 #include "code_gen/x86.h"
+#include "scope/symrec.h"
 
-char* registers[] = { "eax", "ebx", "ecx", "edx", "esp", "ebp", "eip" };
-char* fp_registers[] = { "st0", "st1", "st2" };
+const char const* registers[] = { "eax", "ebx", "ecx", "edx", "esp", "ebp", "eip" };
+const char const* fp_registers[] = { "st0", "st1", "st2" };
 typedef enum { eax, ebx, ecx, edx, esp, ebp, eip } register_map;
 typedef enum { st0, st1, st2 } fp_register_map;
 
-int global_instruction_id;
+size_t global_instruction_id;
+size_t base_pointer_offset;
+size_t sp_offset;
 
-fp_register_map get_another_fp_register(fp_register_map r1, fp_register_map r2)
+fp_register_map 
+get_another_fp_register(fp_register_map r1, 
+                        fp_register_map r2)
 {
     if (r1 > r2)
     {
@@ -30,7 +35,9 @@ fp_register_map get_another_fp_register(fp_register_map r1, fp_register_map r2)
     case st1: return st0;
     }
 }
-register_map get_another_register(register_map r1, register_map r2)
+register_map 
+get_another_register(register_map r1,
+                     register_map r2)
 {
     if (r1 > r2)
     {
@@ -53,6 +60,14 @@ register_map get_another_register(register_map r1, register_map r2)
     case ebx: return eax;
     case ecx: return eax;
     }
+}
+
+char* 
+declare_var(symrec* s)
+{
+    s->bp_off = base_pointer_offset;
+    base_pointer_offset += 4;
+    return "add esp, 4";
 }
 
 char*
@@ -79,13 +94,15 @@ x86_start_if_else(expression e,
                   char* if_block_code,
                   char* else_block_code)
 {
-    char* code = format("cmp %s 0\n\
+    char* code = format("%s\n\
+                         cmp %s 0\n\
                          jne else_%d\n\
                          %s\n\
                          jmp endif_%d\n\
                          else_%d:\n\
                          %s\n\
                          endif_%d:\n",
+                         e.code,
                          registers[e.reg],
                          global_instruction_id,
                          if_block_code,
@@ -96,13 +113,13 @@ x86_start_if_else(expression e,
     global_instruction_id += 2;
     free(if_block_code);
     free(else_block_code);
+    free(e.code);
 
     return code;
 }
 
 void initx86()
 {
-    global_gen = (generator*) malloc(sizeof(generator));
-    global_gen->start_if = &x86_start_if;
-    global_gen->start_if_else = &x86_start_if_else;
+    global_gen.start_if = &x86_start_if;
+    global_gen.start_if_else = &x86_start_if_else;
 }
