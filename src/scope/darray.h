@@ -27,9 +27,9 @@ int main(void)
    return 0;
 }
 */
-#include <stddef.h>
 #ifndef __DARRAY_H
 #define __DARRAY_H
+#include <stddef.h>
 
 #define darray_get_at(id, arr, i) darray_get(arr, i)
 #define darray_get(arr, i) ((arr)->base[(i)]) 
