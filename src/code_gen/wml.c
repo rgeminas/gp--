@@ -1,4 +1,5 @@
 #include <stdlib.h>
+
 #include "wml.h"
 #include "scope/type.h"
 #include "lexer/lexer.h"
@@ -21,19 +22,18 @@ char* wml_operators[num_operators] = { "ADD", "SUB", "MUL", "DIV", "IDIV", "REM"
 size_t constant_counter = 0;
 size_t procedure_counter = 1;
 size_t* variable_stack;
-
-char* 
-wml_factor_op_expr(expression e,
-                   expression e2)
-{
-    return "";
-}
+size_t label_counter = 0;
 
 char* 
 wml_start_if(expression e,
              char* if_block_code)
 {
-    return "";
+    char* r = format("%s\n"
+                     "TJUMP_FW_W $%d\n"
+                     "%s\n"
+                     "LABEL $%d\n", e.code, label_counter, if_block_code, label_counter);
+    label_counter++;
+    return r;
 }
 
 char* 
@@ -41,7 +41,15 @@ wml_start_if_else(expression e,
                   char* if_block_code,
                   char* else_block_code)
 {
-    return "";
+    char* r = format("%s\n"
+                     "TJUMP_FW_W $%d\n"
+                     "%s\n"
+                     "JUMP_FW_W $%d\n"
+                     "LABEL $%d\n"
+                     "%s\n"
+                     "LABEL $%d", e.code, label_counter, if_block_code, label_counter + 1, label_counter, else_block_code, label_counter + 1);
+    label_counter += 2;
+    return r;
 }
 
 char* 
@@ -184,7 +192,7 @@ wml_generate_relational_expression_code(expression lhs,
                                         expression rhs,
                                         size_t operator_id)
 {
-    return "";
+    return format("%s\n%s\n%s\n", lhs.code, rhs.code, OPERATOR_S(operator_id));
 }
 
 char*
@@ -215,6 +223,7 @@ char*
 wml_declare_real_const_and_use_code(float c)
 {
     // Not implemented because the assembler used doesn't support it
+    exit(1);
     return "";
 }
 
