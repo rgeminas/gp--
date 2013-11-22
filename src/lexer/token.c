@@ -52,5 +52,5 @@ PAIR keywords[] = {
     {"for", T_FOR},
     {"to", T_TO},
     {"true", T_BOOLEAN_CONST},
-    {"false", T_BOOLEAN_CONST}
+    {"false", T_BOOLEAN_CONST},
 };

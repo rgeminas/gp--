@@ -66,6 +66,16 @@ initialize_stack()
     scope_stack = (symbol_stack*) malloc(sizeof(symbol_stack));
     scope_stack->kh_table_top = kh_init(id);
     scope_stack->previous = NULL;
+
+    // Declare print builtin
+    symrec* s = proc_declare(0);
+    s->parameter_list = darray_init(symrec)();
+    symrec* s2 = (symrec*) malloc(sizeof(symrec));
+    s2->spec = PARAM;
+    s2->type = T_REAL;
+    s2->parameter_list = NULL;
+    s2->id = 1;
+    darray_push_back(symrec)(s->parameter_list, s2);
 }
 
 void 

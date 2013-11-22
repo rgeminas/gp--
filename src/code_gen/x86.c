@@ -3,8 +3,8 @@
 #include "code_gen/x86.h"
 #include "scope/symrec.h"
 
-const char const* registers[] = { "eax", "ebx", "ecx", "edx", "esp", "ebp", "eip" };
-const char const* fp_registers[] = { "st0", "st1", "st2" };
+char const* registers[] = { "eax", "ebx", "ecx", "edx", "esp", "ebp", "eip" };
+char const* fp_registers[] = { "st0", "st1", "st2" };
 typedef enum { eax, ebx, ecx, edx, esp, ebp, eip } register_map;
 typedef enum { st0, st1, st2 } fp_register_map;
 

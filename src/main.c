@@ -4,7 +4,7 @@
 #include "lexer/token.h"
 #include "scope/symrec.h"
 #include "code_gen/stringbuilder.h"
-
+#include "code_gen/wml.h"
 // Bison-defined parsing function.
 extern int yyparse(void);
 
@@ -19,6 +19,8 @@ extern STATE_MACHINE* _wssm;
 extern FILE* _f;
 
 extern char** secondary_tokens;
+extern size_t sec_i;
+extern size_t sec_alloc;
 
 extern int yydebug;
 
@@ -33,6 +35,8 @@ main(int argc, char** argv)
     }
     else
     {
+        // Override this with something else someday
+        init_wml();
         for (int i = 1; i < argc; i++)
         {
             if (!strcmp(argv[i], "--help"))
@@ -68,8 +72,13 @@ main(int argc, char** argv)
     _sm = make_full_tokenizer(tokens, 22, keywords, 26);
     _wssm = make_nontoken_skipper(); 
 
-    secondary_tokens = (char**) malloc(sizeof(char*));
-    
+    sec_alloc = 3;
+    secondary_tokens = (char**) malloc(3 * sizeof(char*));
+    secondary_tokens[0] = "print";
+    secondary_tokens[1] = "arg";
+    sec_i++;
+    sec_i++;
+
     if (!yyparse())
     {
         puts("Parsing successful! Wheeeeee!");

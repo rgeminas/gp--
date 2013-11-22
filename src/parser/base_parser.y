@@ -1,9 +1,11 @@
 %{
 
+#include <stdio.h>
 #include "scope/khash.h"
 #include "lexer/lexer.h"
 #include "lexer/token.h"
 #include "scope/symrec.h"
+#include "code_gen/generator.h"
 
 extern int yylex(void);
 extern int yyerror(char*);
@@ -94,15 +96,22 @@ such as allocating memory space;
 
 %right T_THEN T_ELSE
 
-%type<record> formal_parameter_list opt_brc_formal_parameter_list_brc procedure_block variable_group star_comma_id parameter_definition star_smc_parameter_definition opt_brc_actual_parameter_list_brc actual_parameter_list star_comma_actual_parameter
-%type<expr> star_adding_operator_term star_multiplying_operator_factor opt_relational_operator_simple_expression
-%type<id> T_ID variable_access type factor expression term adding_operator constant simple_expression relational_operator multiplying_operator actual_parameter
+%type<record> formal_parameter_list opt_brc_formal_parameter_list_brc variable_group star_comma_id parameter_definition star_smc_parameter_definition opt_brc_actual_parameter_list_brc actual_parameter_list star_comma_actual_parameter variable_access
+%type<expr> star_adding_operator_term star_multiplying_operator_factor factor expression simple_expression actual_parameter term constant
+%type<id> T_ID type adding_operator relational_operator multiplying_operator sign_operator
 %type<int_const> T_INT_CONST T_BOOLEAN_CONST
 %type<real_const> T_REAL_CONST
-
+%type<block_code> input block_body opt_constant_definition_part opt_variable_definition_part star_procedure_definition constant_definition_part variable_definition_part procedure_definition plus_constant_definition constant_definition plus_variable_definition variable_definition assignment_statement procedure_statement if_statement while_statement compound_statement star_comma_statement statement procedure_block 
 %%
-input: T_PROGRAM T_ID T_SEMICOLON force_initialization block_body T_PERIOD { delete_scope(); } // deallocate last scope
-;
+input: T_PROGRAM T_ID T_SEMICOLON force_initialization block_body T_PERIOD 
+{   
+    $$ = global_gen.generate_program($2, $5);
+    // Print to console
+    fprintf(stdout, "%s", $$);
+    // deallocate last scope
+    delete_scope(); 
+};
+
 
 force_initialization: 
 { 
@@ -111,66 +120,103 @@ force_initialization:
 };
 
 block_body: opt_constant_definition_part opt_variable_definition_part star_procedure_definition compound_statement
+{
+    $$ = global_gen.generate_block_body($1, $2, $3, $4)
+}
 ;
 
 opt_constant_definition_part: 
                             | constant_definition_part
-;
+{
+    $$ = $1;
+};
 
 opt_variable_definition_part: 
                             | variable_definition_part  
-;
+{
+    $$ = $1;
+};
 
 star_procedure_definition: 
                          | procedure_definition star_procedure_definition
+{
+    $$ = global_gen.concatenate_procedures($1, $2);
+}
 ;
 
 constant_definition_part: T_CONST plus_constant_definition
+{
+    $$ = $2;
+}
 ;
 
 plus_constant_definition: constant_definition 
+{
+    // Void function
+    $$ = $1;
+}
                         | constant_definition plus_constant_definition
+{
+    $$ = global_gen.concatenate_constants($1, $2);
+}
 ;
 
 constant_definition: T_ID T_EQ T_INT_CONST T_SEMICOLON 
 { 
     YYSTYPE u;
     u.int_const = $3;
-    if (const_declare($1, u, T_INT_CONST) == NULL) 
+    symrec* s = const_declare($1, u, T_INT_CONST);
+    if (s == NULL) 
     {
         fprintf(stderr, "ERROR: Redefinition of symbol '%s' ", secondary_tokens[$1]);
         print_location();
         YYERROR; 
     }
+    $$ = global_gen.generate_constant_def(s);
 } 
                    | T_ID T_EQ T_REAL_CONST T_SEMICOLON 
 {
     YYSTYPE u;
     u.real_const = $3;
-    if (const_declare($1, u, T_REAL_CONST) == NULL) 
+    symrec* s = const_declare($1, u, T_REAL_CONST);
+    if (s == NULL) 
     {
         fprintf(stderr, "ERROR: Redefinition of symbol '%s' ", secondary_tokens[$1]);
         print_location();
         YYERROR; 
     }
+    $$ = global_gen.generate_constant_def(s);
 } 
                    | T_ID T_EQ T_BOOLEAN_CONST T_SEMICOLON 
 {
     YYSTYPE u;
     u.int_const = $3;
-    if (const_declare($1, u, T_BOOLEAN_CONST) == NULL) 
+    symrec* s = const_declare($1, u, T_BOOLEAN_CONST);
+    if (s == NULL) 
     {
         fprintf(stderr, "ERROR: Redefinition of symbol '%s' ", secondary_tokens[$1]);
         print_location();
         YYERROR; 
     }
+    $$ = global_gen.generate_constant_def(s);
 };
 
 variable_definition_part: T_VAR plus_variable_definition
+{
+    // Void function
+    //$$ = global_gen.set_variable_ids($2);
+    $$ = $2;
+}
 ;
 
 plus_variable_definition: variable_definition 
+{
+    $$ = $1;
+}
                         | variable_definition plus_variable_definition
+{
+    $$ = global_gen.concatenate_variables($1, $2);
+}
 ;
 
 variable_definition: variable_group T_SEMICOLON
@@ -181,6 +227,7 @@ variable_definition: variable_group T_SEMICOLON
         s->spec = VAR;
         add_to_scope(s);
     }
+    $$ = global_gen.generate_variable_def($1->parameter_list);
     free($1->parameter_list);
     free($1);
 };
@@ -256,16 +303,17 @@ type: T_INTEGER
 };
 
 procedure_definition: procedure_block block_body T_SEMICOLON 
-{ 
+{
+
     delete_scope(); 
 };
 
 procedure_block: T_PROCEDURE T_ID opt_brc_formal_parameter_list_brc T_SEMICOLON 
 {
-    $$ = proc_declare($2);
+    symrec* s = proc_declare($2);
     darray_symrec* arr = $3->parameter_list;
     // Copy parameter list to the actual symrec
-    $$->parameter_list = $3->parameter_list;
+    s->parameter_list = $3->parameter_list;
 
     free($3);  // the parameter list is still going to be there, don't worry
 
@@ -276,6 +324,7 @@ procedure_block: T_PROCEDURE T_ID opt_brc_formal_parameter_list_brc T_SEMICOLON
     {
         add_to_scope(copy_symrec(darray_get(arr, i)));
     }
+    $$ = global_gen.generate_procedure_def(s);
 };
 
 opt_brc_formal_parameter_list_brc: 
@@ -320,7 +369,6 @@ formal_parameter_list: parameter_definition star_smc_parameter_definition
 
 star_smc_parameter_definition:
 {
-
     $$ = (symrec*) malloc(sizeof(symrec));
     $$->id = -1;
     $$->spec = PARAMLIST;
@@ -371,23 +419,29 @@ statement:
 
 assignment_statement: variable_access T_ASSIGN expression
 {
-    symrec* s = search_in_any_scope($1);
+    symrec* s = $1;
     if (s->spec != VAR && s->spec != PARAM)
     {
-        fprintf(stderr, "ERROR: Assignment to non-lvalue '%s' ", secondary_tokens[$1]);
+        fprintf(stderr, "ERROR: Assignment to non-lvalue '%s' ", secondary_tokens[$1->id]);
         print_location();
         YYERROR;
     }
-    if (!COMPATIBLE(s->type, $3))
+    if (!COMPATIBLE(s->type, $3.term_type))
     {
-        fprintf(stderr, "ERROR: Cannot coerce expression into variable '%s' ", secondary_tokens[$1]);
+        fprintf(stderr, "ERROR: Cannot coerce expression into variable '%s' ", secondary_tokens[$1->id]);
         print_location();
         YYERROR;
     }
+    $$ = global_gen.generate_assignment(s, $3);
 };
 
 procedure_statement: T_ID opt_brc_actual_parameter_list_brc
 {
+    /*
+    BIOHAZARD: Our scope analysis didn't use expression arrays for passing parameters,
+    using symrecs instead. We pay for this now by having to inject pushing code into a
+    symrec. Fuck.
+    */
     symrec* proc_symrec = search_in_any_scope($1);
     if (proc_symrec == NULL || proc_symrec->spec != PROCEDURE)
     {
@@ -404,6 +458,7 @@ procedure_statement: T_ID opt_brc_actual_parameter_list_brc
             print_location();
             YYERROR;
         }
+        $$ = global_gen.call_void_procedure(proc_symrec);
     }
     else
     {
@@ -430,6 +485,7 @@ procedure_statement: T_ID opt_brc_actual_parameter_list_brc
                 YYERROR;
             }
         }
+        $$ = global_gen.call_procedure(proc_symrec, $2->code);
     }
 };
 
@@ -439,6 +495,7 @@ opt_brc_actual_parameter_list_brc:
     $$->id = -1;
     $$->spec = PARAMLIST;
     $$->parameter_list = darray_init(symrec)();
+    $$->code = "";
 }
                                  | T_LBRACKET actual_parameter_list T_RBRACKET
 {
@@ -446,6 +503,7 @@ opt_brc_actual_parameter_list_brc:
     $$->id = -1;
     $$->spec = PARAMLIST;
     $$->parameter_list = $2->parameter_list;
+    $$->code = $2->code;
 };
 
 actual_parameter_list: actual_parameter star_comma_actual_parameter
@@ -454,8 +512,9 @@ actual_parameter_list: actual_parameter star_comma_actual_parameter
     symrec* s = (symrec*) malloc(sizeof(symrec));
     s->id = -1;
     s->spec = PARAM;
-    s->type = $1;
+    s->type = $1.term_type;
     darray_push_front(symrec)($$->parameter_list, s);
+    $$->code = global_gen.concatenate_parameter($1.code, $2->code);
 };
 
 star_comma_actual_parameter: 
@@ -464,6 +523,7 @@ star_comma_actual_parameter:
     $$->id = -1;
     $$->spec = PARAMLIST;
     $$->parameter_list = darray_init(symrec)();
+    $$->code = "";
 }
                            | T_COMMA actual_parameter star_comma_actual_parameter
 {
@@ -471,8 +531,9 @@ star_comma_actual_parameter:
     symrec* s = (symrec*) malloc(sizeof(symrec));
     s->id = -1;
     s->spec = PARAM;
-    s->type = $2;
+    s->type = $2.term_type;
     darray_push_front(symrec)($$->parameter_list, s);
+    $$->code = global_gen.concatenate_parameter($2.code, $3->code);
 };
 
 actual_parameter: expression { $$ = $1; }
@@ -480,71 +541,70 @@ actual_parameter: expression { $$ = $1; }
 
 if_statement: T_IF expression T_THEN statement
 {
-    if ($2 != T_BOOLEAN) 
+    if ($2.term_type != T_BOOLEAN) 
     {
         fprintf(stderr, "ERROR: Expression does not have boolean type ");
         print_location();
         YYERROR;
     }
+    $$ = global_gen.start_if($2, $4);
 }
             | T_IF expression T_THEN statement T_ELSE statement
 {
-    if ($2 != T_BOOLEAN)
+    if ($2.term_type != T_BOOLEAN)
     {
         fprintf(stderr, "ERROR: Expression does not have boolean type ");
         print_location();
         YYERROR;
     }
+    $$ = global_gen.start_if_else($2, $4, $6);
 };
 
 while_statement: T_WHILE expression T_DO statement
 {
-    if ($2 != T_BOOLEAN)
+    if ($2.term_type != T_BOOLEAN)
     {
         fprintf(stderr, "ERROR: Expression does not have boolean type ");
         print_location();
         YYERROR;
     }
+    $$ = global_gen.start_while($2, $4);
 };
 
 
 compound_statement: T_BEGIN statement star_comma_statement T_END
+{
+    $$ = global_gen.concatenate_statements($2, $3);
+}
 ;
 
 star_comma_statement: 
                     | T_SEMICOLON statement star_comma_statement
+{
+    $$ = global_gen.concatenate_statements($2, $3);
+}
 ;
 
-expression: simple_expression opt_relational_operator_simple_expression
+expression: simple_expression relational_operator simple_expression
 {
-    if ($2.operation != T_INVALID)
-    {
-        //printf("\n\n%d REL %d, OP IS %d\n\n", $1, $2.term_type, $2.operation);
-        $$ = EXPR_RETURN($1, $2.term_type, $2.operation);
-        //printf("\n\nRESULT IS %d\n\n", $$);
-        if ($$ == T_INVALID) 
+        printf("SIMPLE_EXPRESSION\n");
+        printf("\n\n%d REL %d, OP IS %d\n\n", $1.term_type, $2, $3.term_type);
+        $$.term_type = EXPR_RETURN($1.term_type, $3.term_type, $2);
+        printf("\n\nRESULT IS %d", $$.term_type);
+        print_location();
+        if ($$.term_type == T_INVALID) 
         {
             fprintf(stderr, "ERROR: Unable to operate operands ");
             print_location();
             YYERROR;
         }
-    }
-    else
-    {
-        $$ = $1;
-    }
-};
-
-opt_relational_operator_simple_expression: 
-{
-    $$.operation = T_INVALID;
-    $$.term_type = T_INVALID;
+        $$.code = global_gen.generate_relational_expression_code($1, $3, $2);
 }
-                                         | relational_operator simple_expression
-{ 
-    $$.operation = $1;
-    $$.term_type = $2;
-};
+          | simple_expression
+{
+    $$ = $1;
+}
+;
 
 relational_operator: T_LT { $$ = T_LT; }
                    | T_EQ { $$ = T_EQ; }
@@ -558,13 +618,14 @@ simple_expression: sign_operator term star_adding_operator_term
 {
     if($3.operation != T_INVALID && $3.operation != T_INVALID)
     {
-        $$ = EXPR_RETURN($2, $3.term_type, $3.operation);
-        if ($$ == T_INVALID)
+        $$.term_type = EXPR_RETURN($2.term_type, $3.term_type, $3.operation);
+        if ($$.term_type == T_INVALID)
         {
             fprintf(stderr, "ERROR: Unable to operate operands ");
             print_location();
             YYERROR;
         }
+        $$.code = global_gen.generate_signed_expression_code($2, $3, $1);
     }
     else
     {
@@ -575,13 +636,14 @@ simple_expression: sign_operator term star_adding_operator_term
 { 
     if($2.operation != T_INVALID && $2.operation != T_INVALID)
     {
-        $$ = EXPR_RETURN($1, $2.term_type, $2.operation);
-        if ($$ == T_INVALID)
+        $$.term_type = EXPR_RETURN($1.term_type, $2.term_type, $2.operation);
+        if ($$.term_type == T_INVALID)
         {
             fprintf(stderr, "ERROR: Unable to operate operands ");
             print_location();
             YYERROR;
         }
+        $$.code = global_gen.generate_expression_code($1, $2);
     }
     else
     {
@@ -589,8 +651,8 @@ simple_expression: sign_operator term star_adding_operator_term
     }
 };
 
-sign_operator: T_PLUS
-             | T_MINUS
+sign_operator: T_PLUS { $$ = T_PLUS; }
+             | T_MINUS { $$ = T_MINUS; }
 ;
 
 star_adding_operator_term: 
@@ -600,21 +662,22 @@ star_adding_operator_term:
 }
                          | adding_operator term star_adding_operator_term
 {
-    $$.operation = $1;
     if ($3.operation != T_INVALID && $3.term_type != T_INVALID)
     {
-        $$.term_type = EXPR_RETURN($2, $3.term_type, $3.operation);
+        $$.operation = $1;
+        $$.term_type = EXPR_RETURN($2.term_type, $3.term_type, $3.operation);
         if ($$.term_type == T_INVALID)
         {
             fprintf(stderr, "ERROR: Unable to operate operands ");
             print_location();
             YYERROR;
         }
+        $$.code = global_gen.generate_expression_code($2, $3);
     }
     else
     {
+        $$ = $2;
         $$.operation = $1;
-        $$.term_type = $2;
     }
 };
 
@@ -635,15 +698,18 @@ term: factor star_multiplying_operator_factor
 {
     if ($2.operation != T_INVALID && $2.term_type != T_INVALID)
     {
-        //printf("\n\n%d OPERATED WITH %d, OP IS %d\n\n", $1, $2.term_type, $2.operation);
-        $$ = EXPR_RETURN($1, $2.term_type, $2.operation);
-        //printf("\n\nRESULT IS %d\n\n", $$);
-        if ($$ == T_INVALID)
+        printf("TERM\n");
+        printf("\n\n%d OPERATED WITH %d, OP IS %d\n\n", $1.term_type, $2.term_type, $2.operation);
+        $$.term_type = EXPR_RETURN($1.term_type, $2.term_type, $2.operation);
+        printf("\n\nRESULT IS %d\n\n", $$.term_type);
+        print_location();
+        if ($$.term_type == T_INVALID)
         {
             fprintf(stderr, "ERROR: Unable to operate operands ");
             print_location();
             YYERROR;
         }
+        $$.code = global_gen.generate_expression_code($1, $2);
     }
     else
     {
@@ -661,17 +727,21 @@ star_multiplying_operator_factor:
     $$.operation = $1;
     if ($3.operation != T_INVALID && $3.term_type != T_INVALID)
     {
-        $$.term_type = EXPR_RETURN($2, $3.term_type, $3.operation);
+        $$.operation = $1;
+        $$.term_type = EXPR_RETURN($2.term_type, $3.term_type, $3.operation);
         if ($$.term_type == T_INVALID)
         {
             fprintf(stderr, "ERROR: Unable to operate operands ");
             print_location();
             YYERROR;
         }
+        $$.code = global_gen.generate_expression_code($2, $3);
     }
     else
     {
-        $$.term_type = $2;
+        $$ = $2;
+        $$.operation = $1;
+
     }
 };
 
@@ -692,19 +762,19 @@ factor: constant
 }
       | T_NOT factor
 {
-    $$ = EXPR_RETURN(T_INVALID, $2, T_NOT);
-    if ($$ == T_INVALID)
+    $$.term_type = EXPR_RETURN(T_INVALID, $2.term_type, T_NOT);
+    if ($$.term_type == T_INVALID)
     {
         fprintf(stderr, "ERROR: Unable to execute operation ");
         print_location();
         YYERROR;
     }
+    $$.code = global_gen.generate_not_expression_code($2);
 };
 
 variable_access: T_ID 
 { 
     // The symbol must exist! Checking its species is done at a later stage.
-    $$ = $1; 
     symrec* s = search_in_any_scope($1);
     if (s == NULL)
     {
@@ -712,24 +782,29 @@ variable_access: T_ID
         print_location();
         YYERROR;
     }
+    $$ = s;
 };
 
 constant: T_INT_CONST
 {
-    $$ = T_INTEGER;
+    $$.term_type = T_INTEGER;
+    $$.code = global_gen.declare_int_const_and_use_code($1);
 }
         | T_REAL_CONST
 {
-    $$ = T_REAL;
+    $$.term_type = T_REAL;
+    // This is never going to happen
+    $$.code = global_gen.declare_real_const_and_use_code($1);
 } 
         | T_BOOLEAN_CONST
 {
-    $$ = T_BOOLEAN;
+    $$.term_type = T_BOOLEAN;
+    $$.code = global_gen.declare_bool_const_and_use_code($1);
 } 
         | variable_access
 {
     // Pass on the type as an expression
-    symrec* s = search_in_any_scope($1);
-    $$ = s->type;
+    $$.term_type = $1->type;
+    $$.code = global_gen.get_accessor_code($1);
 };
 %%

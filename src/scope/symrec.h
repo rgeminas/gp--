@@ -21,6 +21,7 @@ typedef struct symrec
     int type; // Among T_BOOLEAN, T_INTEGER, T_REAL. Bite me.
     YYSTYPE value; // This is never going to be a symrec
     struct darray_symrec* parameter_list; // Dynamic array of function parameters.
+    char* code; // Mostly used to handle the pushing of expressions onto the stack;
 
     int reg;
     int bp_off;
