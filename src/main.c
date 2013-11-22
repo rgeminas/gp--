@@ -71,13 +71,14 @@ main(int argc, char** argv)
 
     _sm = make_full_tokenizer(tokens, 22, keywords, 26);
     _wssm = make_nontoken_skipper(); 
-
+    // Insert builtins on token stack - THIS IS FUCKING UGLY KTHXBAI
     sec_alloc = 3;
     secondary_tokens = (char**) malloc(3 * sizeof(char*));
     secondary_tokens[0] = "print";
     secondary_tokens[1] = "arg";
     sec_i++;
     sec_i++;
+    //
 
     if (!yyparse())
     {

@@ -1,0 +1,6 @@
+program stupid;
+    const
+        a = 3;
+begin
+    print(a);
+end.
