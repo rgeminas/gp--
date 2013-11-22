@@ -22,6 +22,7 @@ program HelloWorld;
         while (e mod 3 <> 2) do
         begin
             e := a + 2;
+            print(e);
             if e <= 3 then ProcedureWithNoParams
         end;
     end;

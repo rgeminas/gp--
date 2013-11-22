@@ -1,6 +1,11 @@
 program stupid;
     const
-        a = 3;
+        a = 332;
+    var
+        v, w : integer;
 begin
-    print(a);
+    v := 2 * (a + 1)  + 1;
+    w := v div 2;
+    print(v);
+    print(w);
 end.

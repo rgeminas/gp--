@@ -190,6 +190,7 @@ const_declare(int id,
         return NULL;
     symrec* s = (symrec*) malloc(sizeof(symrec));
     s->id = id;
+    s->value = value;
     s->parameter_list = NULL;
     s->spec = CONST;
     if (type == T_INT_CONST)

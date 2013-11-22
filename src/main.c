@@ -82,11 +82,11 @@ main(int argc, char** argv)
 
     if (!yyparse())
     {
-        puts("Parsing successful! Wheeeeee!");
+        fprintf(stderr, "Parsing successful! Wheeeeee!");
     }
     else
     {
-        puts("Parsing unsuccessful.");
+        fprintf(stderr, "Parsing unsuccessful.");
     }
     fclose(_f);
     return 0;

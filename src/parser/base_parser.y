@@ -121,23 +121,32 @@ force_initialization:
 
 block_body: opt_constant_definition_part opt_variable_definition_part star_procedure_definition compound_statement
 {
-    $$ = global_gen.generate_block_body($1, $2, $3, $4)
+    $$ = global_gen.generate_block_body($1, $2, $3, $4);
 }
 ;
 
 opt_constant_definition_part: 
+{
+    $$ = "";
+}
                             | constant_definition_part
 {
     $$ = $1;
 };
 
 opt_variable_definition_part: 
+{
+    $$ = "";
+}
                             | variable_definition_part  
 {
     $$ = $1;
 };
 
 star_procedure_definition: 
+{
+    $$ = "";
+}
                          | procedure_definition star_procedure_definition
 {
     $$ = global_gen.concatenate_procedures($1, $2);
@@ -410,11 +419,29 @@ parameter_definition: variable_group
 };
 
 statement: 
+{
+    $$ = "";
+}
          | procedure_statement
+{
+    $$ = $1;
+}
          | if_statement
+{
+    $$ = $1;
+}
          | while_statement
+{
+    $$ = $1;
+}
          | compound_statement
+{
+    $$ = $1;
+}
          | assignment_statement
+{
+    $$ = $1;
+}
 ;
 
 assignment_statement: variable_access T_ASSIGN expression
@@ -579,6 +606,9 @@ compound_statement: T_BEGIN statement star_comma_statement T_END
 ;
 
 star_comma_statement: 
+{
+    $$ = "";
+}
                     | T_SEMICOLON statement star_comma_statement
 {
     $$ = global_gen.concatenate_statements($2, $3);
@@ -587,11 +617,11 @@ star_comma_statement:
 
 expression: simple_expression relational_operator simple_expression
 {
-        printf("SIMPLE_EXPRESSION\n");
-        printf("\n\n%d REL %d, OP IS %d\n\n", $1.term_type, $2, $3.term_type);
+        //printf("SIMPLE_EXPRESSION\n");
+        //printf("\n\n%d REL %d, OP IS %d\n\n", $1.term_type, $2, $3.term_type);
         $$.term_type = EXPR_RETURN($1.term_type, $3.term_type, $2);
-        printf("\n\nRESULT IS %d", $$.term_type);
-        print_location();
+        //printf("\n\nRESULT IS %d", $$.term_type);
+        //print_location();
         if ($$.term_type == T_INVALID) 
         {
             fprintf(stderr, "ERROR: Unable to operate operands ");
@@ -698,11 +728,11 @@ term: factor star_multiplying_operator_factor
 {
     if ($2.operation != T_INVALID && $2.term_type != T_INVALID)
     {
-        printf("TERM\n");
-        printf("\n\n%d OPERATED WITH %d, OP IS %d\n\n", $1.term_type, $2.term_type, $2.operation);
+        //printf("TERM\n");
+        //printf("\n\n%d OPERATED WITH %d, OP IS %d\n\n", $1.term_type, $2.term_type, $2.operation);
         $$.term_type = EXPR_RETURN($1.term_type, $2.term_type, $2.operation);
-        printf("\n\nRESULT IS %d\n\n", $$.term_type);
-        print_location();
+        //printf("\n\nRESULT IS %d\n\n", $$.term_type);
+        //print_location();
         if ($$.term_type == T_INVALID)
         {
             fprintf(stderr, "ERROR: Unable to operate operands ");
