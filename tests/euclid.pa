@@ -1,4 +1,4 @@
-program stupid;
+program FinalTest;
     const
         a = 332;
     var

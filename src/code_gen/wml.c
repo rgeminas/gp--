@@ -8,17 +8,23 @@ extern char** secondary_tokens;
 
 /*
 
-BIOHAZARD: THIS CODE LEAKS MEMORY LIKE LADIES IN PORN
-LEAK SQUIRTING FLUIDS. LEAVE A BUCKET BELOW THE COMPUTER
-TO COLLECT THE LEAKING MEMORY, THIS ISN'T GOING TO BE FIXED
-BEFORE TUESDAY. - Gemig
+BIOHAZARD: THIS CODE LEAKS MEMORY. 
+
+LEAVE A BUCKET BELOW THE COMPUTER TO COLLECT THE LEAKING MEMORY,
+THIS ISN'T GOING TO BE FIXED BEFORE TUESDAY.
+
+All of these functions work with the same principle:
+template filling, concatenating and bubbling code.
 
 */
 
+// Macro for easy operator text acquiring
 #define OPERATOR_S(op) wml_operators[operator_table[op]]
 
 char* wml_operators[num_operators] = { "ADD", "SUB", "MUL", "DIV", "IDIV", "REM", "AND", "OR", "NOT", "EQ", "NE", "LE", "GE", "LT", "GT"};
 
+// Control compile-time variables that will be used to
+// fill the bp_off field in the symrecs for access.
 size_t constant_counter = 0;
 size_t procedure_counter = 0;
 size_t* variable_stack;
@@ -52,11 +58,27 @@ wml_start_if_else(expression e,
     return r;
 }
 
+// Pushes the result into the stack.
 char* 
 wml_generate_expression_code(expression e1,
                              expression e2)
 {
     return format("%s\n%s\n%s\n", e1.code, e2.code, OPERATOR_S(e2.operation)); 
+}
+
+//
+// Remember, the code we're templating has a %s written in the middle of it. 
+// This is STRICTLY necessary so nested functions do not appear
+// inside the parent function code, which is illegal in WMLScript.
+// To avoid this, we need to write the procedure declarations outside
+// the function body, which is what we're doing here.
+//
+
+char*
+wml_generate_procedure_def(symrec* s)
+{
+    return format(s->code, format("\nEXTERN FUNCTION %s %d %d\nFUNCVARS %d\n", 
+        secondary_tokens[s->id], procedure_counter++, s->parameter_list->length, *variable_stack - s->parameter_list->length));
 }
 
 char* 
@@ -66,23 +88,18 @@ wml_generate_program(size_t id,
     return format(body, format("\nEXTERN FUNCTION MAIN %d 0\nFUNCVARS %d\n", procedure_counter, *variable_stack));
 }
 
+//
+// Here we generate a generic function body with a literal %s in the place
+// where the name would be. We're going to fill that in elsewhere.
+//
 char*
 wml_generate_block_body(char* const_part,
                         char* var_part,
                         char* proc_part,
                         char* block_code)
 {
-    //char* r = format("%s\n%s\n%s\nEXTERN FUNCTION MAIN 0 0\n\FUNCVARS %d\n\%s\nRETURN", 
     char* r = format("%s\n%s\n%s\n%%s\n%s\nRETURN", 
         const_part, var_part, proc_part, block_code);
-    return r;
-}
-
-char* 
-wml_concatenate_procedures(char* c1, 
-                           char* c2)
-{
-    char* r = format("%s\n%s", c1, c2);
     return r;
 }
 
@@ -90,9 +107,22 @@ char*
 wml_concatenate_parameter(char* c1,
                           char* c2)
 {
-    // This is NOT the pascal convention. Arguments are passed
-    // From right to left so we reverse the order
+    // This is NOT the pascal convention, it's the WML convention. 
+    // Arguments are passed from right to left so we reverse the order
     return format("%s\n%s\n", c2, c1);
+}
+
+// These next few functions are all the same.
+// I thought I might need to insert some control instruction
+// between them in some hypothetical machine. WML is not that
+// hypothetical machine, so they're simple concatenations.
+
+char* 
+wml_concatenate_procedures(char* c1, 
+                           char* c2)
+{
+    char* r = format("%s\n%s", c1, c2);
+    return r;
 }
 
 char*
@@ -119,6 +149,10 @@ wml_concatenate_statements(char* c1,
     return r;
 }
 
+//
+// This is valid only for named constants. Anonymous 
+// constants are dealt with elsewhere.
+//
 char*
 wml_generate_constant_def(symrec* s)
 {
@@ -143,18 +177,6 @@ wml_generate_variable_def(darray(symrec)* vars)
         ++*variable_stack;
     }
     return "";
-}
-
-char*
-wml_generate_procedure_def(symrec* s)
-{
-/*    return format("EXTERN FUNCTION %s %d %d\n"
-           "FUNCVARS %d\n"
-           "%s\n"
-           "RETURN", secondary_tokens[s->id], procedure_counter, s->parameter_list->length, *variable_stack, s->code);
-*/
-    return format(s->code, format("\nEXTERN FUNCTION %s %d %d\nFUNCVARS %d\n", 
-        secondary_tokens[s->id], procedure_counter++, s->parameter_list->length, *variable_stack - s->parameter_list->length));
 }
 
 char*
