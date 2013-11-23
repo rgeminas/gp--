@@ -25,11 +25,13 @@ typedef struct generator
     char* (*start_while)(expression, char*);
     char* (*generate_relational_expression_code)(expression, expression, size_t); 
     char* (*generate_signed_expression_code)(expression, expression, size_t); 
+    char* (*generate_signed_single_expression_code)(expression, size_t); 
     char* (*generate_not_expression_code)(expression);
     char* (*declare_int_const_and_use_code)(int);
     char* (*declare_real_const_and_use_code)(float);
     char* (*declare_bool_const_and_use_code)(int);
     char* (*get_accessor_code)(symrec*);
+    void (*start_procedure)(symrec*);
 
 } generator;
 

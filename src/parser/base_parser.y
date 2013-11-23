@@ -96,12 +96,12 @@ such as allocating memory space;
 
 %right T_THEN T_ELSE
 
-%type<record> formal_parameter_list opt_brc_formal_parameter_list_brc variable_group star_comma_id parameter_definition star_smc_parameter_definition opt_brc_actual_parameter_list_brc actual_parameter_list star_comma_actual_parameter variable_access
+%type<record> formal_parameter_list opt_brc_formal_parameter_list_brc variable_group star_comma_id parameter_definition star_smc_parameter_definition opt_brc_actual_parameter_list_brc actual_parameter_list star_comma_actual_parameter variable_access procedure_block 
 %type<expr> star_adding_operator_term star_multiplying_operator_factor factor expression simple_expression actual_parameter term constant
 %type<id> T_ID type adding_operator relational_operator multiplying_operator sign_operator
 %type<int_const> T_INT_CONST T_BOOLEAN_CONST
 %type<real_const> T_REAL_CONST
-%type<block_code> input block_body opt_constant_definition_part opt_variable_definition_part star_procedure_definition constant_definition_part variable_definition_part procedure_definition plus_constant_definition constant_definition plus_variable_definition variable_definition assignment_statement procedure_statement if_statement while_statement compound_statement star_comma_statement statement procedure_block 
+%type<block_code> input block_body opt_constant_definition_part opt_variable_definition_part star_procedure_definition constant_definition_part variable_definition_part procedure_definition plus_constant_definition constant_definition plus_variable_definition variable_definition assignment_statement procedure_statement if_statement while_statement compound_statement star_comma_statement statement 
 %%
 input: T_PROGRAM T_ID T_SEMICOLON force_initialization block_body T_PERIOD 
 {   
@@ -313,7 +313,8 @@ type: T_INTEGER
 
 procedure_definition: procedure_block block_body T_SEMICOLON 
 {
-
+    $1->code = $2;
+    $$ = global_gen.generate_procedure_def($1);
     delete_scope(); 
 };
 
@@ -328,12 +329,16 @@ procedure_block: T_PROCEDURE T_ID opt_brc_formal_parameter_list_brc T_SEMICOLON
 
     create_scope();
 
+    // THis is kinda needed because we have a separate variable stack per function in the WML machine:
+    // When we parse the var declarations inside the function, we must start from zero again.
+    global_gen.start_procedure(s);
+
     // add stuff from parameter_list to the newly-created scope so the underlying function can access it
     for (size_t i = 0; i < arr->length; i++)
     {
         add_to_scope(copy_symrec(darray_get(arr, i)));
     }
-    $$ = global_gen.generate_procedure_def(s);
+    $$ = s;
 };
 
 opt_brc_formal_parameter_list_brc: 
@@ -659,7 +664,8 @@ simple_expression: sign_operator term star_adding_operator_term
     }
     else
     {
-        $$ = $2;
+        $$.term_type = $2.term_type;
+        $$.code = global_gen.generate_signed_single_expression_code($2, $1);
     }
 }
                  | term star_adding_operator_term

@@ -1,29 +1,53 @@
-program Euclid;
-
-procedure gcd_recursive(u, v: integer);
-  begin
-    if u mod v <> 0 then
-        gcd_recursive(v, u mod v)
-    else
-        print(v);
-  end;
-
-procedure gcd_iterative(u, v: integer);
+program stupid;
+    const
+        a = 332;
     var
-        t, gcd_iterative: integer;
+        v, w : integer;
+
+    procedure gcd_iterative(u, v: integer);
+        var
+            t, gcd_iterative: integer;
     begin
+        print(u);
+        print(v);
         while v <> 0 do
         begin
             t := u;
             u := v;
             v := t mod v;
         end;
-        gcd_iterative := abs(u);
-        print(gcd_iterative);
+        if u < 0 then u := -u;
+        gcd_iterative := u;
+        print(gcd_iterative)
     end;
+    
+    procedure gcd_recursive(u, v: integer);
+    var
+        tmp: integer;
+    begin
+        print(u);
+        print(v);
+        if u < v then 
+        begin
+            tmp := u;
+            u := v;
+            v := tmp
+        end;
 
+        if u mod v <> 0 then
+            gcd_recursive(v, u mod v)
+        else
+            print(v);
+    end;
 begin
-    gcd_iterative(10, 75);
-    gcd_recursive(10, 75);
-end.
+    v := 2 * (a + 1)  + 1;
+    w := v div 2;
 
+    if v mod 2 = 0 then
+        print(111)
+    else
+        print(222);
+
+    print(v);
+    print(w);
+end.

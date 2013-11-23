@@ -20,7 +20,7 @@ BEFORE TUESDAY. - Gemig
 char* wml_operators[num_operators] = { "ADD", "SUB", "MUL", "DIV", "IDIV", "REM", "AND", "OR", "NOT", "EQ", "NE", "LE", "GE", "LT", "GT"};
 
 size_t constant_counter = 0;
-size_t procedure_counter = 1;
+size_t procedure_counter = 0;
 size_t* variable_stack;
 size_t label_counter = 0;
 
@@ -63,7 +63,7 @@ char*
 wml_generate_program(size_t id,
                      char* body)
 {
-    return body;
+    return format(body, format("\nEXTERN FUNCTION MAIN %d 0\nFUNCVARS %d\n", procedure_counter, *variable_stack));
 }
 
 char*
@@ -72,8 +72,9 @@ wml_generate_block_body(char* const_part,
                         char* proc_part,
                         char* block_code)
 {
-    char* r = format("%s\n%s\n%s\n\EXTERN FUNCTION MAIN 0 0\n\FUNCVARS %d\n\%s\nRETURN", 
-        const_part, var_part, proc_part, *variable_stack, block_code);
+    //char* r = format("%s\n%s\n%s\nEXTERN FUNCTION MAIN 0 0\n\FUNCVARS %d\n\%s\nRETURN", 
+    char* r = format("%s\n%s\n%s\n%%s\n%s\nRETURN", 
+        const_part, var_part, proc_part, block_code);
     return r;
 }
 
@@ -135,7 +136,6 @@ wml_generate_constant_def(symrec* s)
 char*
 wml_generate_variable_def(darray(symrec)* vars)
 {
-    char* base = "", tmp;
     for(int i = 0; i < vars->length; i++)
     {
         symrec* s = darray_get(vars, i); 
@@ -148,7 +148,13 @@ wml_generate_variable_def(darray(symrec)* vars)
 char*
 wml_generate_procedure_def(symrec* s)
 {
-    return "";
+/*    return format("EXTERN FUNCTION %s %d %d\n"
+           "FUNCVARS %d\n"
+           "%s\n"
+           "RETURN", secondary_tokens[s->id], procedure_counter, s->parameter_list->length, *variable_stack, s->code);
+*/
+    return format(s->code, format("\nEXTERN FUNCTION %s %d %d\nFUNCVARS %d\n", 
+        secondary_tokens[s->id], procedure_counter++, s->parameter_list->length, *variable_stack - s->parameter_list->length));
 }
 
 char*
@@ -162,7 +168,7 @@ wml_generate_assignment(symrec* s,
 char*
 wml_call_void_procedure(symrec* s)
 {
-    return "";
+    return format("CALL_S %d\n", s->bp_off);
 }
 
 char*
@@ -182,9 +188,16 @@ wml_call_procedure(symrec* s,
 
 char*
 wml_start_while(expression e,
-                char* while_block)
+                char* while_block_code)
 {
-    return "";
+    char* r = format("LABEL $%d\n"
+                     "%s\n"
+                     "TJUMP_FW_W $%d\n"
+                     "%s\n"
+                     "JUMP_BW_W $%d\n"
+                     "LABEL $%d\n", label_counter, e.code, label_counter + 1, while_block_code, label_counter, label_counter + 1);
+    label_counter += 2;
+    return r;
 }
 
 char*
@@ -200,13 +213,30 @@ wml_generate_signed_expression_code(expression lhs,
                                     expression rhs,
                                     size_t sign)
 {
-    return "";
+    if (sign == T_PLUS)
+        return wml_generate_expression_code(lhs, rhs);
+    else 
+    {
+        return format("%s\nUMINUS\n", wml_generate_expression_code(lhs, rhs));
+    }
+}
+
+char*
+wml_generate_signed_single_expression_code(expression lhs,
+                                           size_t sign)
+{
+    if (sign == T_PLUS)
+        return lhs.code;
+    else 
+    {
+        return format("%s\nUMINUS\n", lhs.code);
+    }
 }
 
 char* 
 wml_generate_not_expression_code(expression e)
 {
-    return "";
+    return format("%s\nNOT\n", e.code);
 }
 
 char* 
@@ -244,13 +274,26 @@ wml_get_accessor_code(symrec* s)
     {
         return format("LOAD_CONST_S %d\n", s->bp_off);
     }
-    else if (s->spec == VAR)
+    else if (s->spec == VAR | s->spec == PARAM)
     {
         return format("LOAD_VAR_S %d\n", s->bp_off);
     }
-    else return "";
+    //else exit(1);
 }
 
+void
+wml_start_procedure(symrec* s)
+{
+    variable_stack++;
+    *variable_stack = 0;
+    // This has to be here to enable self-recursion
+    s->bp_off = procedure_counter;
+    for (int i = 0; i < s->parameter_list->length; i++)
+    {
+        darray_get(s->parameter_list, i)->bp_off = *variable_stack;
+        ++*variable_stack;
+    }
+}
 void 
 init_wml()
 {
@@ -258,6 +301,7 @@ init_wml()
     variable_stack = (size_t*) malloc(sizeof(size_t) * 15);
     *variable_stack = 0;
 
+    // Why did I think I'd ever code for more than one target machine?
     global_gen.start_if = wml_start_if;
     global_gen.start_if_else = wml_start_if_else;
     global_gen.generate_expression_code = wml_generate_expression_code;
@@ -277,9 +321,11 @@ init_wml()
     global_gen.start_while = wml_start_while;
     global_gen.generate_relational_expression_code = wml_generate_relational_expression_code;
     global_gen.generate_signed_expression_code = wml_generate_signed_expression_code;
+    global_gen.generate_signed_single_expression_code = wml_generate_signed_single_expression_code;
     global_gen.generate_not_expression_code = wml_generate_not_expression_code;
     global_gen.declare_int_const_and_use_code = wml_declare_int_const_and_use_code;
     global_gen.declare_real_const_and_use_code = wml_declare_real_const_and_use_code;
     global_gen.declare_bool_const_and_use_code = wml_declare_bool_const_and_use_code;
     global_gen.get_accessor_code = wml_get_accessor_code;
+    global_gen.start_procedure = wml_start_procedure;
 }
