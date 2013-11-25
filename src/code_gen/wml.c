@@ -21,7 +21,7 @@ template filling, concatenating and bubbling code.
 // Macro for easy operator text acquiring
 #define OPERATOR_S(op) wml_operators[operator_table[op]]
 
-char* wml_operators[num_operators] = { "ADD", "SUB", "MUL", "DIV", "IDIV", "REM", "AND", "OR", "NOT", "EQ", "NE", "LE", "GE", "LT", "GT"};
+char* wml_operators[num_operators] = { "ADD", "SUB", "MUL", "DIV", "IDIV", "REM", "SCAND", "SCOR", "NOT", "EQ", "NE", "LE", "GE", "LT", "GT"};
 
 // Control compile-time variables that will be used to
 // fill the bp_off field in the symrecs for access.
@@ -39,6 +39,7 @@ wml_start_if(expression e,
                      "%s\n"
                      "LABEL $%d\n", e.code, label_counter, if_block_code, label_counter);
     label_counter++;
+
     return r;
 }
 
@@ -98,7 +99,7 @@ wml_generate_block_body(char* const_part,
                         char* proc_part,
                         char* block_code)
 {
-    char* r = format("%s\n%s\n%s\n%%s\n%s\nRETURN", 
+    char* r = format("%s\n%s\n%s\n%%s\n%s\nRETURN_ES", 
         const_part, var_part, proc_part, block_code);
     return r;
 }
